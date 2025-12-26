@@ -1,0 +1,1 @@
+CREATE DATABASE mood_api_db;
