@@ -1,3 +1,2 @@
 CREATE DATABASE auth_db;
-CREATE DATABASE mood_db;
-CREATE DATABASE advice_db;
+CREATE DATABASE mood_advice_db;

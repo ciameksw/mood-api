@@ -1,4 +1,4 @@
-\connect mood_db
+\connect mood_advice_db
 
 CREATE TABLE IF NOT EXISTS public.mood_type (
 	id SERIAL PRIMARY KEY,
@@ -24,6 +24,20 @@ CREATE TABLE IF NOT EXISTS public.mood (
     mood_date DATE NOT NULL DEFAULT CURRENT_DATE,
 	mood_type_id INT REFERENCES public.mood_type(id),
 	note TEXT,
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS public.advice_type (
+	id SERIAL PRIMARY KEY,
+	name VARCHAR(50) UNIQUE NOT NULL,
+	description TEXT
+);
+
+CREATE TABLE IF NOT EXISTS public.advice (
+	id SERIAL PRIMARY KEY,
+	advice_type_id INT REFERENCES public.advice_type(id),
+	title VARCHAR(200),
+	content TEXT NOT NULL,
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

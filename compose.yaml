@@ -38,7 +38,7 @@ services:
       - POSTGRES_PORT=5432
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DATABASE=mood_db
+      - POSTGRES_DATABASE=mood_advice_db
       - POSTGRES_SSLMODE=disable
     ports: # expose for local test, in the future use API gateway
       - '3002:3002'
