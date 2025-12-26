@@ -1,0 +1,32 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./postgres/init:/docker-entrypoint-initdb.d
+
+  auth:
+    build: ./auth
+    container_name: auth
+    environment:
+      - SERVER_HOST=0.0.0.0
+      - SERVER_PORT=3001
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DATABASE=auth_db
+      - POSTGRES_SSLMODE=disable
+    ports: # expose for local test, in the future use API gateway
+      - '3001:3001'
+    depends_on:
+      - postgres
+
+volumes:
+  pgdata:
