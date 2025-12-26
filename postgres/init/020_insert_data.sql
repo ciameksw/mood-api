@@ -12,7 +12,6 @@ INSERT INTO public.mood_type (name, description) VALUES
 ('Stressed', 'Feeling overwhelmed by pressures, demands, or responsibilities'),
 ('Neutral', 'Feeling balanced with no strong emotions, just going through the day');
 
--- Insert advice types
 INSERT INTO public.advice_type (name, description) VALUES
 ('Motivation', 'Inspirational content to boost energy and drive'),
 ('Self-Care', 'Tips for taking care of your physical and mental well-being'),
@@ -25,8 +24,6 @@ INSERT INTO public.advice_type (name, description) VALUES
 ('Problem Solving', 'Approaches to tackle challenges'),
 ('Breathing Exercises', 'Techniques to calm the mind and body');
 
--- Insert mood to advice type mappings
--- Happy (id=1)
 INSERT INTO public.mood_advice_type_mapping (mood_type_id, advice_type_id, priority) VALUES
 (1, 4, 1),  -- Happy -> Productivity
 (1, 7, 2),  -- Happy -> Exercise
