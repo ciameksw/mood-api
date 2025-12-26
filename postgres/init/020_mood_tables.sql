@@ -20,7 +20,8 @@ INSERT INTO public.mood_type (name, description) VALUES
 
 CREATE TABLE IF NOT EXISTS public.mood (
 	id SERIAL PRIMARY KEY,
-	user_id INT NOT NULL,
+    user_id INT NOT NULL,
+    mood_date DATE NOT NULL DEFAULT CURRENT_DATE,
 	mood_type_id INT REFERENCES public.mood_type(id),
 	note TEXT,
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
