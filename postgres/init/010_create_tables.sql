@@ -20,7 +20,8 @@ CREATE TABLE IF NOT EXISTS public.mood (
     mood_date DATE NOT NULL DEFAULT CURRENT_DATE,
 	mood_type_id INT REFERENCES public.mood_type(id),
 	note TEXT,
-	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	UNIQUE (user_id, mood_date)
 );
 
 CREATE TABLE IF NOT EXISTS public.advice_type (
