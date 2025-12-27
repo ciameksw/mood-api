@@ -32,6 +32,8 @@ func (s *Server) Start() {
 	r.HandleFunc("GET /mood", s.handleGetMoods)
 	r.HandleFunc("GET /mood/types", s.handleGetMoodTypes)
 	r.HandleFunc("GET /mood/summary", s.handleGetMoodSummary)
+	r.HandleFunc("PUT /mood", s.handleUpdateMood)
+	r.HandleFunc("DELETE /mood/{id}", s.handleDeleteMood)
 
 	r.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)

@@ -101,6 +101,64 @@ func (s *Server) handleGetMoodSummary(w http.ResponseWriter, r *http.Request) {
 	s.writeJSON(w, summary, http.StatusOK)
 }
 
+type updateMoodInput struct {
+	ID         int    `json:"id" validate:"required"`
+	MoodTypeID int    `json:"moodTypeId" validate:"required"`
+	Note       string `json:"note" validate:"max=500"`
+}
+
+func (s *Server) handleUpdateMood(w http.ResponseWriter, r *http.Request) {
+	s.Logger.Info.Println("Updating mood entry")
+	var input updateMoodInput
+
+	err := json.NewDecoder(r.Body).Decode(&input)
+	if err != nil {
+		s.handleError(w, "Invalid request payload", err, http.StatusBadRequest)
+		return
+	}
+
+	err = s.Validator.Struct(input)
+	if err != nil {
+		s.handleError(w, err.Error(), err, http.StatusBadRequest)
+		return
+	}
+
+	err = s.Postgres.UpdateMoodEntry(input.ID, input.MoodTypeID, input.Note)
+	if err != nil {
+		s.handleError(w, "Failed to update mood entry", err, http.StatusInternalServerError)
+		return
+	}
+
+	s.writeJSON(w, map[string]string{"message": "Mood entry updated"}, http.StatusOK)
+}
+
+func (s *Server) handleDeleteMood(w http.ResponseWriter, r *http.Request) {
+	s.Logger.Info.Println("Deleting mood entry")
+	idStr := r.PathValue("id")
+	if idStr == "" {
+		s.handleError(w, "Missing id parameter", nil, http.StatusBadRequest)
+		return
+	}
+
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		s.handleError(w, "Invalid id parameter", err, http.StatusBadRequest)
+		return
+	}
+
+	err = s.Postgres.DeleteMoodEntry(id)
+	if err != nil {
+		if err.Error() == "no rows deleted" {
+			s.handleError(w, "Mood entry not found", err, http.StatusNotFound)
+			return
+		}
+		s.handleError(w, "Failed to delete mood entry", err, http.StatusInternalServerError)
+		return
+	}
+
+	s.writeJSON(w, map[string]string{"message": "Mood entry deleted"}, http.StatusOK)
+}
+
 // Helper function to parse query parameters for mood retrieval (get moods and get summary)
 func (s *Server) parseQueryParams(r *http.Request) (*postgres.GetInput, error) {
 	userID, err := strconv.Atoi(r.URL.Query().Get("userId"))

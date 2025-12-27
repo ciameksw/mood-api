@@ -148,3 +148,43 @@ func (p *PostgresDB) GetMoodSummary(input GetInput) ([]MoodSummary, error) {
 
 	return summary, nil
 }
+
+// UpdateMoodEntry updates an existing mood entry in the database
+func (p *PostgresDB) UpdateMoodEntry(entryID int, moodTypeID int, note string) error {
+	query := "UPDATE mood SET mood_type_id = $1, note = $2 WHERE id = $3"
+
+	result, err := p.DB.Exec(query, moodTypeID, note, entryID)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rowsAffected == 0 {
+		return errors.New("no rows updated")
+	}
+
+	return nil
+}
+
+// DeleteMoodEntry deletes a mood entry from the database
+func (p *PostgresDB) DeleteMoodEntry(entryID int) error {
+	query := "DELETE FROM mood WHERE id = $1"
+
+	result, err := p.DB.Exec(query, entryID)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rowsAffected == 0 {
+		return errors.New("no rows deleted")
+	}
+
+	return nil
+}
