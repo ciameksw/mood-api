@@ -1,7 +1,9 @@
 package server
 
 import (
+	"database/sql"
 	"encoding/json"
+	"errors"
 	"net/http"
 
 	"github.com/ciameksw/mood-api/advice/internal/advice/postgres"
@@ -39,6 +41,10 @@ func (s *Server) handleSelectAdvice(w http.ResponseWriter, r *http.Request) {
 
 	adviceID, title, content, err := s.Postgres.SelectRandomAdviceByAdviceTypeID(adviceTypeID)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			s.handleError(w, "No advice found", err, http.StatusNoContent)
+			return
+		}
 		s.handleError(w, "Failed to select advice", err, http.StatusInternalServerError)
 		return
 	}
