@@ -45,5 +45,22 @@ services:
     depends_on:
       - postgres
 
+  advice:
+    build: ./advice
+    container_name: advice
+    environment:
+      - SERVER_HOST=0.0.0.0
+      - SERVER_PORT=3003
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DATABASE=mood_api_db
+      - POSTGRES_SSLMODE=disable
+    ports: # expose for local test, in the future use API gateway
+      - '3003:3003'
+    depends_on:
+      - postgres
+
 volumes:
   pgdata:
