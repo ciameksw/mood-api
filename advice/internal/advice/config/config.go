@@ -19,7 +19,7 @@ type Config struct {
 func GetConfig() *Config {
 	return &Config{
 		ServerHost:       getEnv("SERVER_HOST", "localhost"),
-		ServerPort:       getEnv("SERVER_PORT", "3002"),
+		ServerPort:       getEnv("SERVER_PORT", "3003"),
 		PostgresHost:     getEnv("POSTGRES_HOST", "localhost"),
 		PostgresPort:     getEnv("POSTGRES_PORT", "5432"),
 		PostgresUser:     getEnv("POSTGRES_USER", "user"),
