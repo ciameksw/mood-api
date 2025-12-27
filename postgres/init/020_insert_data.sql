@@ -25,6 +25,7 @@ INSERT INTO public.advice_type (name, description) VALUES
 ('Breathing Exercises', 'Techniques to calm the mind and body');
 
 INSERT INTO public.mood_advice_type_mapping (mood_type_id, advice_type_id, priority) VALUES
+-- Happy (id=1)
 (1, 4, 1),  -- Happy -> Productivity
 (1, 7, 2),  -- Happy -> Exercise
 (1, 6, 3),  -- Happy -> Social Connection

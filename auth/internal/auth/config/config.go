@@ -25,7 +25,7 @@ func GetConfig() *Config {
 		PostgresPort:     getEnv("POSTGRES_PORT", "5432"),
 		PostgresUser:     getEnv("POSTGRES_USER", "user"),
 		PostgresPassword: getEnv("POSTGRES_PASSWORD", "password"),
-		PostgresDatabase: getEnv("POSTGRES_DATABASE", "auth_db"),
+		PostgresDatabase: getEnv("POSTGRES_DATABASE", "mood_api_db"),
 		PostgresSSLMode:  getEnv("POSTGRES_SSLMODE", "disable"),
 		Salt:             getEnv("SALT", "Nb58PsZJlCiO"),
 	}
