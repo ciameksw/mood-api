@@ -1,5 +1,9 @@
 package postgres
 
+import (
+	"github.com/lib/pq"
+)
+
 type MoodSummaryEntry struct {
 	MoodTypeID int     `json:"moodTypeId" validate:"required"`
 	Percentage float64 `json:"percentage" validate:"required"`
@@ -20,7 +24,7 @@ func (pg *PostgresDB) GetAdviceTypeIDByMoodSummary(moodSummary []MoodSummaryEntr
 		WHERE mood_type_id = ANY($1);
 	`
 
-	rows, err := pg.DB.Query(query, moodTypeIDs)
+	rows, err := pg.DB.Query(query, pq.Array(moodTypeIDs))
 	if err != nil {
 		return 0, err
 	}
