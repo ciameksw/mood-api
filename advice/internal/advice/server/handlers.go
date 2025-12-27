@@ -23,7 +23,7 @@ func (s *Server) handleSelectAdvice(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = s.Validator.Struct(input)
+	err = s.Validator.Var(input, "required,dive")
 	if err != nil {
 		s.handleError(w, err.Error(), err, http.StatusBadRequest)
 		return
