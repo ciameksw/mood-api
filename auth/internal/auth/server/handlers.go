@@ -2,8 +2,10 @@ package server
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/ciameksw/mood-api/auth/internal/auth/token"
 )
@@ -118,23 +120,166 @@ func (s *Server) handleLogin(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) handleAuthorize(w http.ResponseWriter, r *http.Request) {
+	userID, err := s.getUserIDFromToken(r)
+	if err != nil {
+		s.handleError(w, err.Error(), nil, http.StatusUnauthorized)
+		return
+	}
+
+	resp := map[string]interface{}{
+		"user_id": userID,
+	}
+	s.writeJSON(w, resp, http.StatusOK)
+}
+
+type userResponse struct {
+	ID        int       `json:"id"`
+	Username  string    `json:"username"`
+	Email     string    `json:"email"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
+func (s *Server) handleGetUser(w http.ResponseWriter, r *http.Request) {
+	s.Logger.Info.Println("Getting user profile")
+
+	userID, err := s.getUserIDFromToken(r)
+	if err != nil {
+		s.handleError(w, err.Error(), nil, http.StatusUnauthorized)
+		return
+	}
+
+	user, err := s.Postgres.GetUserByID(r.Context(), userID)
+	if err != nil {
+		s.handleError(w, "Failed to retrieve user", err, http.StatusInternalServerError)
+		return
+	}
+
+	if user == nil {
+		s.handleError(w, "User not found", nil, http.StatusNotFound)
+		return
+	}
+
+	resp := userResponse{
+		ID:        user.ID,
+		Username:  user.Username,
+		Email:     user.Email,
+		CreatedAt: user.CreatedAt,
+	}
+	s.writeJSON(w, resp, http.StatusOK)
+}
+
+type updateUserInput struct {
+	Username string `json:"username" validate:"omitempty,min=3,max=30"`
+	Email    string `json:"email" validate:"omitempty,email"`
+	Password string `json:"password" validate:"omitempty,min=8"`
+}
+
+func (s *Server) handleUpdateUser(w http.ResponseWriter, r *http.Request) {
+	s.Logger.Info.Println("Updating user profile")
+
+	userID, err := s.getUserIDFromToken(r)
+	if err != nil {
+		s.handleError(w, err.Error(), nil, http.StatusUnauthorized)
+		return
+	}
+
+	var input updateUserInput
+	err = json.NewDecoder(r.Body).Decode(&input)
+	if err != nil {
+		s.handleError(w, "Invalid request payload", err, http.StatusBadRequest)
+		return
+	}
+
+	err = s.Validator.Struct(input)
+	if err != nil {
+		s.handleError(w, err.Error(), err, http.StatusBadRequest)
+		return
+	}
+
+	// Check if new email already exists
+	if input.Email != "" {
+		existingUser, err := s.Postgres.GetUserByEmail(r.Context(), input.Email)
+		if err != nil && err.Error() != "user not found" {
+			s.handleError(w, "Failed to check existing email", err, http.StatusInternalServerError)
+			return
+		}
+		if existingUser != nil && existingUser.ID != userID {
+			s.handleError(w, "Email already in use", nil, http.StatusConflict)
+			return
+		}
+	}
+
+	// Check if new username already exists
+	if input.Username != "" {
+		existingUser, err := s.Postgres.GetUserByUsername(r.Context(), input.Username)
+		if err != nil && err.Error() != "user not found" {
+			s.handleError(w, "Failed to check existing username", err, http.StatusInternalServerError)
+			return
+		}
+		if existingUser != nil && existingUser.ID != userID {
+			s.handleError(w, "Username already in use", nil, http.StatusConflict)
+			return
+		}
+	}
+
+	// Hash password if provided
+	var hashedPassword *string
+	if input.Password != "" {
+		hashed, err := token.HashPassword(input.Password)
+		if err != nil {
+			s.handleError(w, "Failed to hash password", err, http.StatusInternalServerError)
+			return
+		}
+		hashedPassword = &hashed
+	}
+
+	err = s.Postgres.UpdateUser(r.Context(), userID, input.Username, input.Email, hashedPassword)
+	if err != nil {
+		if err.Error() == "no fields to update" {
+			s.handleError(w, "No fields to update", nil, http.StatusBadRequest)
+			return
+		}
+		s.handleError(w, "Failed to update user", err, http.StatusInternalServerError)
+		return
+	}
+
+	s.Logger.Info.Printf("User updated: %d", userID)
+	s.writeJSON(w, map[string]string{"message": "User updated successfully"}, http.StatusOK)
+}
+
+func (s *Server) handleDeleteUser(w http.ResponseWriter, r *http.Request) {
+	s.Logger.Info.Println("Deleting user account")
+
+	userID, err := s.getUserIDFromToken(r)
+	if err != nil {
+		s.handleError(w, err.Error(), nil, http.StatusUnauthorized)
+		return
+	}
+
+	err = s.Postgres.DeleteUser(r.Context(), userID)
+	if err != nil {
+		s.handleError(w, "Failed to delete user", err, http.StatusInternalServerError)
+		return
+	}
+
+	s.Logger.Info.Printf("User deleted: %d", userID)
+	s.writeJSON(w, map[string]string{"message": "User deleted successfully"}, http.StatusOK)
+}
+
+// Helper function to extract userID from Authorization header
+func (s *Server) getUserIDFromToken(r *http.Request) (int, error) {
 	authHeader := r.Header.Get("Authorization")
 	if authHeader == "" {
-		s.handleError(w, "Missing Authorization header", nil, http.StatusUnauthorized)
-		return
+		return 0, errors.New("missing Authorization header")
 	}
 
 	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 	claims, err := token.ValidateJWT(tokenString, s.Config.Salt)
 	if err != nil {
-		s.handleError(w, "Invalid or expired token", err, http.StatusUnauthorized)
-		return
+		return 0, errors.New("invalid or expired token")
 	}
 
-	resp := map[string]interface{}{
-		"user_id": claims.UserID,
-	}
-	s.writeJSON(w, resp, http.StatusOK)
+	return claims.UserID, nil
 }
 
 // Helper function to handle errors

@@ -31,6 +31,9 @@ func (s *Server) Start() {
 	r.HandleFunc("POST /auth/login", s.handleLogin)
 	r.HandleFunc("POST /auth/register", s.handleRegister)
 	r.HandleFunc("GET /auth/authorize", s.handleAuthorize)
+	r.HandleFunc("GET /auth/user", s.handleGetUser)
+	r.HandleFunc("PUT /auth/user", s.handleUpdateUser)
+	r.HandleFunc("DELETE /auth/user", s.handleDeleteUser)
 
 	r.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
