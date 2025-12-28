@@ -12,9 +12,10 @@ func (s *Server) setupAuthRouter(r *http.ServeMux) {
 
 func (s *Server) setupMoodRouter(r *http.ServeMux) {
 	r.HandleFunc("POST /mood", s.authMiddleware(s.handleAddMood))               // Add new mood entry to the logged user
-	r.HandleFunc("GET /mood", s.authMiddleware(s.handleGetMoods))               // Get all mood entries of the logged user
+	r.HandleFunc("GET /mood", s.authMiddleware(s.handleGetMoods))               // Get mood entries of the logged user in time range
 	r.HandleFunc("GET /mood/types", s.authMiddleware(s.handleGetMoodTypes))     // Get all available mood types
-	r.HandleFunc("GET /mood/summary", s.authMiddleware(s.handleGetMoodSummary)) // Get mood summary for the logged user
+	r.HandleFunc("GET /mood/summary", s.authMiddleware(s.handleGetMoodSummary)) // Get mood summary for the logged user in time range
+	r.HandleFunc("GET /mood/{id}", s.authMiddleware(s.handleGetMood))           // Get single mood entry by id
 	r.HandleFunc("PUT /mood", s.authMiddleware(s.handleUpdateMood))             // Update a mood entry of the logged user
 	r.HandleFunc("DELETE /mood/{id}", s.authMiddleware(s.handleDeleteMood))     // Delete a mood entry of the logged user
 }
