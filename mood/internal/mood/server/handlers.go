@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/ciameksw/mood-api/mood/internal/mood/postgres"
+	"github.com/ciameksw/mood-api/mood/internal/mood/repository"
 )
 
 type addMoodInput struct {
@@ -33,7 +33,7 @@ func (s *Server) handleAddMood(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	entry, err := s.Postgres.GetMoodEntryByDateAndUser(input.UserID, input.Date)
+	entry, err := s.DBOperations.GetMoodEntryByDateAndUser(input.UserID, input.Date)
 	if err != nil && err.Error() != "user not found" {
 		s.handleError(w, "Failed to check existing mood entry", err, http.StatusInternalServerError)
 		return
@@ -44,7 +44,7 @@ func (s *Server) handleAddMood(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = s.Postgres.AddMoodEntry(input.UserID, input.Date, input.MoodTypeID, input.Note)
+	_, err = s.DBOperations.AddMoodEntry(input.UserID, input.Date, input.MoodTypeID, input.Note)
 	if err != nil {
 		s.handleError(w, "Failed to add mood entry", err, http.StatusInternalServerError)
 		return
@@ -56,7 +56,7 @@ func (s *Server) handleAddMood(w http.ResponseWriter, r *http.Request) {
 func (s *Server) handleGetMoodTypes(w http.ResponseWriter, r *http.Request) {
 	s.Logger.Info.Println("Getting mood types")
 
-	moodTypes, err := s.Postgres.GetMoodTypes()
+	moodTypes, err := s.DBOperations.GetMoodTypes()
 	if err != nil {
 		s.handleError(w, "Failed to retrieve mood types", err, http.StatusInternalServerError)
 		return
@@ -74,7 +74,7 @@ func (s *Server) handleGetMoods(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	moods, err := s.Postgres.GetMoodEntries(*input)
+	moods, err := s.DBOperations.GetMoodEntries(*input)
 	if err != nil {
 		s.handleError(w, "Failed to retrieve moods", err, http.StatusInternalServerError)
 		return
@@ -92,7 +92,7 @@ func (s *Server) handleGetMoodSummary(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	summary, err := s.Postgres.GetMoodSummary(*input)
+	summary, err := s.DBOperations.GetMoodSummary(*input)
 	if err != nil {
 		s.handleError(w, "Failed to retrieve mood summary", err, http.StatusInternalServerError)
 		return
@@ -123,7 +123,7 @@ func (s *Server) handleUpdateMood(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = s.Postgres.UpdateMoodEntry(input.ID, input.MoodTypeID, input.Note)
+	err = s.DBOperations.UpdateMoodEntry(input.ID, input.MoodTypeID, input.Note)
 	if err != nil {
 		s.handleError(w, "Failed to update mood entry", err, http.StatusInternalServerError)
 		return
@@ -146,7 +146,7 @@ func (s *Server) handleDeleteMood(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = s.Postgres.DeleteMoodEntry(id)
+	err = s.DBOperations.DeleteMoodEntry(id)
 	if err != nil {
 		if err.Error() == "no rows deleted" {
 			s.handleError(w, "Mood entry not found", err, http.StatusNotFound)
@@ -160,7 +160,7 @@ func (s *Server) handleDeleteMood(w http.ResponseWriter, r *http.Request) {
 }
 
 // Helper function to parse query parameters for mood retrieval (get moods and get summary)
-func (s *Server) parseQueryParams(r *http.Request) (*postgres.GetInput, error) {
+func (s *Server) parseQueryParams(r *http.Request) (*repository.GetInput, error) {
 	userID, err := strconv.Atoi(r.URL.Query().Get("userId"))
 	if err != nil {
 		return nil, err
@@ -182,7 +182,7 @@ func (s *Server) parseQueryParams(r *http.Request) (*postgres.GetInput, error) {
 		return nil, errors.New("to date must be in YYYY-MM-DD format")
 	}
 
-	return &postgres.GetInput{
+	return &repository.GetInput{
 		UserID:    userID,
 		StartDate: from,
 		EndDate:   to,

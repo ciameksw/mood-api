@@ -1,10 +1,16 @@
-package postgres
+package repository
 
 import (
 	"database/sql"
 	"errors"
 	"time"
+
+	"github.com/ciameksw/mood-api/pkg/postgres"
 )
+
+type DBOperations struct {
+	Postgres *postgres.PostgresDB
+}
 
 type MoodType struct {
 	ID          int
@@ -13,11 +19,11 @@ type MoodType struct {
 }
 
 // GetMoodTypes retrieves all mood types from the database
-func (p *PostgresDB) GetMoodTypes() ([]MoodType, error) {
+func (o *DBOperations) GetMoodTypes() ([]MoodType, error) {
 	var moodTypes []MoodType
 	query := "SELECT id, name, description FROM mood_type"
 
-	rows, err := p.DB.Query(query)
+	rows, err := o.Postgres.DB.Query(query)
 	if err != nil {
 		return nil, err
 	}
@@ -39,11 +45,11 @@ func (p *PostgresDB) GetMoodTypes() ([]MoodType, error) {
 }
 
 // AddMoodEntry inserts a new mood entry into the database
-func (p *PostgresDB) AddMoodEntry(userId int, moodDate string, moodTypeID int, note string) (int, error) {
+func (o *DBOperations) AddMoodEntry(userId int, moodDate string, moodTypeID int, note string) (int, error) {
 	var entryID int
 	query := "INSERT INTO mood (user_id, mood_date, mood_type_id, note, created_at) VALUES ($1, $2, $3, $4, $5) RETURNING id"
 
-	err := p.DB.QueryRow(query, userId, moodDate, moodTypeID, note, time.Now()).Scan(&entryID)
+	err := o.Postgres.DB.QueryRow(query, userId, moodDate, moodTypeID, note, time.Now()).Scan(&entryID)
 	if err != nil {
 		return 0, err
 	}
@@ -52,11 +58,11 @@ func (p *PostgresDB) AddMoodEntry(userId int, moodDate string, moodTypeID int, n
 }
 
 // GetMoodEntryByDateAndUser retrieves a mood entry for a specific user on a specific date
-func (p *PostgresDB) GetMoodEntryByDateAndUser(userId int, moodDate string) (*MoodEntry, error) {
+func (o *DBOperations) GetMoodEntryByDateAndUser(userId int, moodDate string) (*MoodEntry, error) {
 	var me MoodEntry
 	query := "SELECT id, user_id, mood_date, mood_type_id, note, created_at FROM mood WHERE user_id = $1 AND mood_date = $2"
 
-	err := p.DB.QueryRow(query, userId, moodDate).Scan(&me.ID, &me.UserID, &me.MoodDate, &me.MoodTypeID, &me.Note, &me.CreatedAt)
+	err := o.Postgres.DB.QueryRow(query, userId, moodDate).Scan(&me.ID, &me.UserID, &me.MoodDate, &me.MoodTypeID, &me.Note, &me.CreatedAt)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, errors.New("user not found")
@@ -83,11 +89,11 @@ type GetInput struct {
 }
 
 // GetMoodEntries retrieves mood entries for a user within a date range
-func (p *PostgresDB) GetMoodEntries(input GetInput) ([]MoodEntry, error) {
+func (o *DBOperations) GetMoodEntries(input GetInput) ([]MoodEntry, error) {
 	var moodEntries []MoodEntry
 	query := "SELECT id, user_id, mood_date, mood_type_id, note, created_at FROM mood WHERE user_id = $1 AND mood_date BETWEEN $2 AND $3"
 
-	rows, err := p.DB.Query(query, input.UserID, input.StartDate, input.EndDate)
+	rows, err := o.Postgres.DB.Query(query, input.UserID, input.StartDate, input.EndDate)
 	if err != nil {
 		return nil, err
 	}
@@ -115,7 +121,7 @@ type MoodSummary struct {
 }
 
 // GetMoodSummary retrieves a summary of mood entries for a user within a date range
-func (p *PostgresDB) GetMoodSummary(input GetInput) ([]MoodSummary, error) {
+func (o *DBOperations) GetMoodSummary(input GetInput) ([]MoodSummary, error) {
 	var summary []MoodSummary
 	query := `
         SELECT 
@@ -128,7 +134,7 @@ func (p *PostgresDB) GetMoodSummary(input GetInput) ([]MoodSummary, error) {
 		ORDER BY count DESC
     `
 
-	rows, err := p.DB.Query(query, input.UserID, input.StartDate, input.EndDate)
+	rows, err := o.Postgres.DB.Query(query, input.UserID, input.StartDate, input.EndDate)
 	if err != nil {
 		return nil, err
 	}
@@ -150,10 +156,10 @@ func (p *PostgresDB) GetMoodSummary(input GetInput) ([]MoodSummary, error) {
 }
 
 // UpdateMoodEntry updates an existing mood entry in the database
-func (p *PostgresDB) UpdateMoodEntry(entryID int, moodTypeID int, note string) error {
+func (o *DBOperations) UpdateMoodEntry(entryID int, moodTypeID int, note string) error {
 	query := "UPDATE mood SET mood_type_id = $1, note = $2 WHERE id = $3"
 
-	result, err := p.DB.Exec(query, moodTypeID, note, entryID)
+	result, err := o.Postgres.DB.Exec(query, moodTypeID, note, entryID)
 	if err != nil {
 		return err
 	}
@@ -170,10 +176,10 @@ func (p *PostgresDB) UpdateMoodEntry(entryID int, moodTypeID int, note string) e
 }
 
 // DeleteMoodEntry deletes a mood entry from the database
-func (p *PostgresDB) DeleteMoodEntry(entryID int) error {
+func (o *DBOperations) DeleteMoodEntry(entryID int) error {
 	query := "DELETE FROM mood WHERE id = $1"
 
-	result, err := p.DB.Exec(query, entryID)
+	result, err := o.Postgres.DB.Exec(query, entryID)
 	if err != nil {
 		return err
 	}
