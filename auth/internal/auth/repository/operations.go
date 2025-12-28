@@ -1,4 +1,4 @@
-package postgres
+package repository
 
 import (
 	"context"
@@ -6,7 +6,13 @@ import (
 	"errors"
 	"fmt"
 	"time"
+
+	"github.com/ciameksw/mood-api/pkg/postgres"
 )
+
+type DBOperations struct {
+	Postgres *postgres.PostgresDB
+}
 
 type User struct {
 	ID           int
@@ -17,11 +23,11 @@ type User struct {
 }
 
 // CreateUser inserts a new user into the database
-func (p *PostgresDB) CreateUser(ctx context.Context, username, email, passwordHash string) (int, error) {
+func (o *DBOperations) CreateUser(ctx context.Context, username, email, passwordHash string) (int, error) {
 	var userID int
 	query := "INSERT INTO users (username, email, password_hash, created_at) VALUES ($1, $2, $3, $4) RETURNING id"
 
-	err := p.DB.QueryRowContext(ctx, query, username, email, passwordHash, time.Now()).Scan(&userID)
+	err := o.Postgres.DB.QueryRowContext(ctx, query, username, email, passwordHash, time.Now()).Scan(&userID)
 	if err != nil {
 		return 0, err
 	}
@@ -30,11 +36,11 @@ func (p *PostgresDB) CreateUser(ctx context.Context, username, email, passwordHa
 }
 
 // GetUserByEmail retrieves a user by email
-func (p *PostgresDB) GetUserByEmail(ctx context.Context, email string) (*User, error) {
+func (o *DBOperations) GetUserByEmail(ctx context.Context, email string) (*User, error) {
 	user := &User{}
 	query := "SELECT id, username, email, password_hash, created_at FROM users WHERE email = $1"
 
-	err := p.DB.QueryRowContext(ctx, query, email).Scan(
+	err := o.Postgres.DB.QueryRowContext(ctx, query, email).Scan(
 		&user.ID,
 		&user.Username,
 		&user.Email,
@@ -53,11 +59,11 @@ func (p *PostgresDB) GetUserByEmail(ctx context.Context, email string) (*User, e
 }
 
 // UserExistsByEmail checks if a user with the given email exists
-func (p *PostgresDB) UserExistsByEmail(ctx context.Context, email string) (bool, error) {
+func (o *DBOperations) UserExistsByEmail(ctx context.Context, email string) (bool, error) {
 	var exists bool
 	query := "SELECT EXISTS(SELECT 1 FROM users WHERE email = $1)"
 
-	err := p.DB.QueryRowContext(ctx, query, email).Scan(&exists)
+	err := o.Postgres.DB.QueryRowContext(ctx, query, email).Scan(&exists)
 	if err != nil {
 		return false, err
 	}
@@ -66,11 +72,11 @@ func (p *PostgresDB) UserExistsByEmail(ctx context.Context, email string) (bool,
 }
 
 // UserExistsByUsername checks if a user with the given username exists
-func (p *PostgresDB) UserExistsByUsername(ctx context.Context, username string) (bool, error) {
+func (o *DBOperations) UserExistsByUsername(ctx context.Context, username string) (bool, error) {
 	var exists bool
 	query := "SELECT EXISTS(SELECT 1 FROM users WHERE username = $1)"
 
-	err := p.DB.QueryRowContext(ctx, query, username).Scan(&exists)
+	err := o.Postgres.DB.QueryRowContext(ctx, query, username).Scan(&exists)
 	if err != nil {
 		return false, err
 	}
@@ -79,11 +85,11 @@ func (p *PostgresDB) UserExistsByUsername(ctx context.Context, username string) 
 }
 
 // GetUserByID retrieves a user by ID
-func (p *PostgresDB) GetUserByID(ctx context.Context, userID int) (*User, error) {
+func (o *DBOperations) GetUserByID(ctx context.Context, userID int) (*User, error) {
 	user := &User{}
 	query := "SELECT id, username, email, password_hash, created_at FROM users WHERE id = $1"
 
-	err := p.DB.QueryRowContext(ctx, query, userID).Scan(
+	err := o.Postgres.DB.QueryRowContext(ctx, query, userID).Scan(
 		&user.ID,
 		&user.Username,
 		&user.Email,
@@ -102,11 +108,11 @@ func (p *PostgresDB) GetUserByID(ctx context.Context, userID int) (*User, error)
 }
 
 // GetUserByUsername retrieves a user by username
-func (p *PostgresDB) GetUserByUsername(ctx context.Context, username string) (*User, error) {
+func (o *DBOperations) GetUserByUsername(ctx context.Context, username string) (*User, error) {
 	user := &User{}
 	query := "SELECT id, username, email, password_hash, created_at FROM users WHERE username = $1"
 
-	err := p.DB.QueryRowContext(ctx, query, username).Scan(
+	err := o.Postgres.DB.QueryRowContext(ctx, query, username).Scan(
 		&user.ID,
 		&user.Username,
 		&user.Email,
@@ -125,7 +131,7 @@ func (p *PostgresDB) GetUserByUsername(ctx context.Context, username string) (*U
 }
 
 // UpdateUser updates user profile data
-func (p *PostgresDB) UpdateUser(ctx context.Context, userID int, username, email string, passwordHash *string) error {
+func (o *DBOperations) UpdateUser(ctx context.Context, userID int, username, email string, passwordHash *string) error {
 	query := "UPDATE users SET "
 	args := []interface{}{}
 	argIndex := 1
@@ -157,14 +163,14 @@ func (p *PostgresDB) UpdateUser(ctx context.Context, userID int, username, email
 	query += buildUpdateQuery(updates, argIndex)
 	args = append(args, userID)
 
-	_, err := p.DB.ExecContext(ctx, query, args...)
+	_, err := o.Postgres.DB.ExecContext(ctx, query, args...)
 	return err
 }
 
 // DeleteUser deletes a user from the database
-func (p *PostgresDB) DeleteUser(ctx context.Context, userID int) error {
+func (o *DBOperations) DeleteUser(ctx context.Context, userID int) error {
 	query := "DELETE FROM users WHERE id = $1"
-	result, err := p.DB.ExecContext(ctx, query, userID)
+	result, err := o.Postgres.DB.ExecContext(ctx, query, userID)
 	if err != nil {
 		return err
 	}

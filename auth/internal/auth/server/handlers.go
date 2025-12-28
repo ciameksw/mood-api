@@ -32,7 +32,7 @@ func (s *Server) handleRegister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	existingUser, err := s.Postgres.GetUserByEmail(r.Context(), input.Email)
+	existingUser, err := s.DBOperations.GetUserByEmail(r.Context(), input.Email)
 	if err != nil && err.Error() != "user not found" {
 		s.handleError(w, "Failed to check existing user", err, http.StatusInternalServerError)
 		return
@@ -49,7 +49,7 @@ func (s *Server) handleRegister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userID, err := s.Postgres.CreateUser(r.Context(), input.UserName, input.Email, hashedPassword)
+	userID, err := s.DBOperations.CreateUser(r.Context(), input.UserName, input.Email, hashedPassword)
 	if err != nil {
 		s.handleError(w, "Failed to create user", err, http.StatusInternalServerError)
 		return
@@ -84,7 +84,7 @@ func (s *Server) handleLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := s.Postgres.GetUserByEmail(r.Context(), input.Email)
+	user, err := s.DBOperations.GetUserByEmail(r.Context(), input.Email)
 	if err != nil {
 		if err.Error() == "user not found" {
 			s.handleError(w, "Invalid email or password", nil, http.StatusUnauthorized)
@@ -148,7 +148,7 @@ func (s *Server) handleGetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := s.Postgres.GetUserByID(r.Context(), userID)
+	user, err := s.DBOperations.GetUserByID(r.Context(), userID)
 	if err != nil {
 		s.handleError(w, "Failed to retrieve user", err, http.StatusInternalServerError)
 		return
@@ -198,7 +198,7 @@ func (s *Server) handleUpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	// Check if new email already exists
 	if input.Email != "" {
-		existingUser, err := s.Postgres.GetUserByEmail(r.Context(), input.Email)
+		existingUser, err := s.DBOperations.GetUserByEmail(r.Context(), input.Email)
 		if err != nil && err.Error() != "user not found" {
 			s.handleError(w, "Failed to check existing email", err, http.StatusInternalServerError)
 			return
@@ -211,7 +211,7 @@ func (s *Server) handleUpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	// Check if new username already exists
 	if input.Username != "" {
-		existingUser, err := s.Postgres.GetUserByUsername(r.Context(), input.Username)
+		existingUser, err := s.DBOperations.GetUserByUsername(r.Context(), input.Username)
 		if err != nil && err.Error() != "user not found" {
 			s.handleError(w, "Failed to check existing username", err, http.StatusInternalServerError)
 			return
@@ -233,7 +233,7 @@ func (s *Server) handleUpdateUser(w http.ResponseWriter, r *http.Request) {
 		hashedPassword = &hashed
 	}
 
-	err = s.Postgres.UpdateUser(r.Context(), userID, input.Username, input.Email, hashedPassword)
+	err = s.DBOperations.UpdateUser(r.Context(), userID, input.Username, input.Email, hashedPassword)
 	if err != nil {
 		if err.Error() == "no fields to update" {
 			s.handleError(w, "No fields to update", nil, http.StatusBadRequest)
@@ -256,7 +256,7 @@ func (s *Server) handleDeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = s.Postgres.DeleteUser(r.Context(), userID)
+	err = s.DBOperations.DeleteUser(r.Context(), userID)
 	if err != nil {
 		s.handleError(w, "Failed to delete user", err, http.StatusInternalServerError)
 		return
