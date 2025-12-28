@@ -104,7 +104,7 @@ func (s *Server) handleGetMoodSummary(w http.ResponseWriter, r *http.Request) {
 type updateMoodInput struct {
 	ID         int    `json:"id" validate:"required"`
 	MoodTypeID int    `json:"moodTypeId" validate:"required"`
-	Note       string `json:"note" validate:"max=500"`
+	Note       string `json:"note" validate:"required,max=500"`
 }
 
 func (s *Server) handleUpdateMood(w http.ResponseWriter, r *http.Request) {
