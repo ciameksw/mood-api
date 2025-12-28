@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/ciameksw/mood-api/gateway/internal/gateway/config"
+	"github.com/ciameksw/mood-api/gateway/internal/gateway/services/advice"
 	"github.com/ciameksw/mood-api/gateway/internal/gateway/services/auth"
 	"github.com/ciameksw/mood-api/gateway/internal/gateway/services/mood"
 	"github.com/ciameksw/mood-api/pkg/logger"
@@ -12,21 +13,23 @@ import (
 )
 
 type Server struct {
-	Logger      *logger.Logger
-	Config      *config.Config
-	AuthService *auth.AuthService
-	MoodService *mood.MoodService
-	Validator   *validator.Validate
-	httpServer  *http.Server
+	Logger        *logger.Logger
+	Config        *config.Config
+	AuthService   *auth.AuthService
+	MoodService   *mood.MoodService
+	AdviceService *advice.AdviceService
+	Validator     *validator.Validate
+	httpServer    *http.Server
 }
 
 func NewServer(log *logger.Logger, cfg *config.Config) *Server {
 	return &Server{
-		Logger:      log,
-		Config:      cfg,
-		AuthService: auth.NewAuthService(cfg),
-		MoodService: mood.NewMoodService(cfg),
-		Validator:   validator.New(),
+		Logger:        log,
+		Config:        cfg,
+		AuthService:   auth.NewAuthService(cfg),
+		MoodService:   mood.NewMoodService(cfg),
+		AdviceService: advice.NewAdviceService(cfg),
+		Validator:     validator.New(),
 	}
 }
 

@@ -2,11 +2,9 @@ package server
 
 import (
 	"encoding/json"
-	"errors"
 	"io"
 	"net/http"
 	"strconv"
-	"time"
 )
 
 type addMoodInput struct {
@@ -301,25 +299,4 @@ func (s *Server) handleUpdateMood(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	s.forwardResponse(w, updateResp)
-}
-
-// Helper function to parse timeframe query parameters for mood retrieval (get moods and get summary)
-func (s *Server) parseQueryParams(r *http.Request) (string, string, error) {
-	from := r.URL.Query().Get("from")
-	to := r.URL.Query().Get("to")
-
-	if from == "" || to == "" {
-		return "", "", errors.New("from and to parameters are required")
-	}
-
-	// Validate date format YYYY-MM-DD
-	const dateFormat = "2006-01-02"
-	if _, err := time.Parse(dateFormat, from); err != nil {
-		return "", "", errors.New("from date must be in YYYY-MM-DD format")
-	}
-	if _, err := time.Parse(dateFormat, to); err != nil {
-		return "", "", errors.New("to date must be in YYYY-MM-DD format")
-	}
-
-	return from, to, nil
 }
