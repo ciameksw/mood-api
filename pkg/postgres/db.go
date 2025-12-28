@@ -40,10 +40,7 @@ func Connect(host, port, user, password, dbname, sslmode string) (*PostgresDB, e
 	return &PostgresDB{DB: db}, nil
 }
 
-func (p *PostgresDB) Disconnect() {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
+func (p *PostgresDB) Disconnect(ctx context.Context) {
 	// Wait for all connections to be returned to the pool
 	p.DB.SetMaxIdleConns(0)
 	p.DB.SetMaxOpenConns(0)

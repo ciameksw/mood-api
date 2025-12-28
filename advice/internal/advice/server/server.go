@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/ciameksw/mood-api/advice/internal/advice/config"
@@ -15,6 +16,7 @@ type Server struct {
 	Config       *config.Config
 	DBOperations *repository.DBOperations
 	Validator    *validator.Validate
+	httpServer   *http.Server
 }
 
 func NewServer(log *logger.Logger, cfg *config.Config, pg *postgres.PostgresDB) *Server {
@@ -26,7 +28,7 @@ func NewServer(log *logger.Logger, cfg *config.Config, pg *postgres.PostgresDB) 
 	}
 }
 
-func (s *Server) Start() {
+func (s *Server) Start() error {
 	r := http.NewServeMux()
 
 	r.HandleFunc("POST /advice/select", s.handleSelectAdvice)
@@ -37,9 +39,19 @@ func (s *Server) Start() {
 	})
 
 	addr := s.Config.ServerHost + ":" + s.Config.ServerPort
-	s.Logger.Info.Printf("Starting server on %s", addr)
-	err := http.ListenAndServe(addr, r)
-	if err != nil {
-		s.Logger.Error.Fatalf("Server failed to start: %v", err)
+	s.httpServer = &http.Server{
+		Addr:    addr,
+		Handler: r,
 	}
+
+	s.Logger.Info.Printf("Starting server on %s", addr)
+	if err := s.httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		return err
+	}
+	return nil
+}
+
+func (s *Server) Shutdown(ctx context.Context) error {
+	s.Logger.Info.Println("Shutting down HTTP server...")
+	return s.httpServer.Shutdown(ctx)
 }
