@@ -159,6 +159,33 @@ func (s *Server) handleDeleteMood(w http.ResponseWriter, r *http.Request) {
 	s.writeJSON(w, map[string]string{"message": "Mood entry deleted"}, http.StatusOK)
 }
 
+func (s *Server) handleGetMood(w http.ResponseWriter, r *http.Request) {
+	s.Logger.Info.Println("Getting mood entry by ID")
+	idStr := r.PathValue("id")
+	if idStr == "" {
+		s.handleError(w, "Missing id parameter", nil, http.StatusBadRequest)
+		return
+	}
+
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		s.handleError(w, "Invalid id parameter", err, http.StatusBadRequest)
+		return
+	}
+
+	entry, err := s.DBOperations.GetMoodEntryByID(id)
+	if err != nil {
+		if err.Error() == "mood entry not found" {
+			s.handleError(w, "Mood entry not found", err, http.StatusNotFound)
+			return
+		}
+		s.handleError(w, "Failed to retrieve mood entry", err, http.StatusInternalServerError)
+		return
+	}
+
+	s.writeJSON(w, entry, http.StatusOK)
+}
+
 // Helper function to parse query parameters for mood retrieval (get moods and get summary)
 func (s *Server) parseQueryParams(r *http.Request) (*repository.GetInput, error) {
 	userID, err := strconv.Atoi(r.URL.Query().Get("userId"))

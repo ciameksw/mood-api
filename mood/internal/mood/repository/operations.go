@@ -194,3 +194,19 @@ func (o *DBOperations) DeleteMoodEntry(entryID int) error {
 
 	return nil
 }
+
+// GetMoodEntryByID retrieves a mood entry by its ID
+func (o *DBOperations) GetMoodEntryByID(entryID int) (*MoodEntry, error) {
+	var me MoodEntry
+	query := "SELECT id, user_id, mood_date, mood_type_id, note, created_at FROM mood WHERE id = $1"
+
+	err := o.Postgres.DB.QueryRow(query, entryID).Scan(&me.ID, &me.UserID, &me.MoodDate, &me.MoodTypeID, &me.Note, &me.CreatedAt)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, errors.New("mood entry not found")
+		}
+		return nil, err
+	}
+
+	return &me, nil
+}

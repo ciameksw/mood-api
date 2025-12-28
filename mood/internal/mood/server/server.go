@@ -36,6 +36,7 @@ func (s *Server) Start() error {
 	r.HandleFunc("GET /mood/types", s.handleGetMoodTypes)
 	r.HandleFunc("GET /mood/summary", s.handleGetMoodSummary)
 	r.HandleFunc("PUT /mood", s.handleUpdateMood)
+	r.HandleFunc("GET /mood/{id}", s.handleGetMood)
 	r.HandleFunc("DELETE /mood/{id}", s.handleDeleteMood)
 
 	r.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {
