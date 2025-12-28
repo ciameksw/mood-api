@@ -68,6 +68,20 @@ services:
     depends_on:
       - postgres
 
+  quote:
+    build:
+      context: .
+      dockerfile: ./quote/Dockerfile
+    container_name: quote
+    environment:
+      - SERVER_HOST=0.0.0.0
+      - SERVER_PORT=3004
+      - EXTERNAL_QUOTE_URL=https://zenquotes.io
+    ports: # expose for local test, in the future use API gateway
+      - '3004:3004'
+    depends_on:
+      - postgres
+
   gateway:
     build:
       context: .
