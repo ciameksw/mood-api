@@ -11,6 +11,14 @@ services:
       - pgdata:/var/lib/postgresql/data
       - ./postgres/init:/docker-entrypoint-initdb.d
 
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - '6379:6379'
+    volumes:
+      - redisdata:/data
+
   auth:
     build:
       context: .
@@ -77,10 +85,11 @@ services:
       - SERVER_HOST=0.0.0.0
       - SERVER_PORT=3004
       - EXTERNAL_QUOTE_URL=https://zenquotes.io
+      - REDIS_ADDR=redis:6379
     ports: # expose for local test, in the future use API gateway
       - '3004:3004'
     depends_on:
-      - postgres
+      - redis
 
   gateway:
     build:
@@ -102,3 +111,4 @@ services:
 
 volumes:
   pgdata:
+  redisdata:
