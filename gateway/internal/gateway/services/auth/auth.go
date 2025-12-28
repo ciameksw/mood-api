@@ -53,11 +53,13 @@ func (as *AuthService) DeleteLoggedUser(r *http.Request) (*http.Response, error)
 
 func (as *AuthService) commonServiceFunc(url string, r *http.Request) (*http.Response, error) {
 	ct := r.Header.Get("Content-Type")
+	authHeader := r.Header.Get("Authorization")
 	params := httpclient.RequestParams{
-		URL:         as.AuthURL + url,
-		Method:      r.Method,
-		Body:        r.Body,
-		ContentType: &ct,
+		URL:           as.AuthURL + url,
+		Method:        r.Method,
+		Body:          r.Body,
+		ContentType:   &ct,
+		Authorization: &authHeader,
 	}
 	resp, err := httpclient.SendRequest(params)
 	if err != nil {
