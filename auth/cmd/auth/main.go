@@ -2,9 +2,9 @@ package main
 
 import (
 	"github.com/ciameksw/mood-api/auth/internal/auth/config"
-	"github.com/ciameksw/mood-api/auth/internal/auth/logger"
 	"github.com/ciameksw/mood-api/auth/internal/auth/postgres"
 	"github.com/ciameksw/mood-api/auth/internal/auth/server"
+	"github.com/ciameksw/mood-api/pkg/logger"
 )
 
 func main() {

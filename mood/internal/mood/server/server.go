@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"github.com/ciameksw/mood-api/mood/internal/mood/config"
-	"github.com/ciameksw/mood-api/mood/internal/mood/logger"
 	"github.com/ciameksw/mood-api/mood/internal/mood/postgres"
+	"github.com/ciameksw/mood-api/pkg/logger"
 	"github.com/go-playground/validator/v10"
 )
 
