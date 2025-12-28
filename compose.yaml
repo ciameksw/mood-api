@@ -12,7 +12,9 @@ services:
       - ./postgres/init:/docker-entrypoint-initdb.d
 
   auth:
-    build: ./auth
+    build:
+      context: .
+      dockerfile: ./auth/Dockerfile
     container_name: auth
     environment:
       - SERVER_HOST=0.0.0.0
@@ -29,7 +31,9 @@ services:
       - postgres
 
   mood:
-    build: ./mood
+    build:
+      context: .
+      dockerfile: ./mood/Dockerfile
     container_name: mood
     environment:
       - SERVER_HOST=0.0.0.0
@@ -46,7 +50,9 @@ services:
       - postgres
 
   advice:
-    build: ./advice
+    build:
+      context: .
+      dockerfile: ./advice/Dockerfile
     container_name: advice
     environment:
       - SERVER_HOST=0.0.0.0

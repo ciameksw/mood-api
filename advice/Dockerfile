@@ -1,10 +1,27 @@
-FROM golang:1.25-alpine
+FROM golang:1.25-alpine AS builder
 
-RUN mkdir advice
-COPY . /advice
+WORKDIR /workspace
 
-WORKDIR /advice
+COPY go.work go.work.sum ./
+COPY pkg/go.mod pkg/go.sum ./pkg/
+COPY advice/go.mod advice/go.sum ./advice/
+COPY mood/go.mod ./mood/
+COPY auth/go.mod ./auth/
+COPY gateway/go.mod ./gateway/
+COPY quote/go.mod ./quote/
 
-RUN go build ./cmd/advice
+WORKDIR /workspace/advice
+RUN go mod download
 
-CMD ["/advice/advice"]
+WORKDIR /workspace
+COPY pkg/ ./pkg/
+COPY advice/ ./advice/
+
+WORKDIR /workspace/advice
+RUN go build -o /advice ./cmd/advice
+
+FROM alpine:latest
+
+COPY --from=builder /advice /advice
+
+CMD ["/advice"]

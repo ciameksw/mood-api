@@ -1,10 +1,27 @@
-FROM golang:1.25-alpine
+FROM golang:1.25-alpine AS builder
 
-RUN mkdir mood
-COPY . /mood
+WORKDIR /workspace
 
-WORKDIR /mood
+COPY go.work go.work.sum ./
+COPY pkg/go.mod pkg/go.sum ./pkg/
+COPY mood/go.mod mood/go.sum ./mood/
+COPY auth/go.mod ./auth/
+COPY advice/go.mod ./advice/
+COPY gateway/go.mod ./gateway/
+COPY quote/go.mod ./quote/
 
-RUN go build ./cmd/mood
+WORKDIR /workspace/mood
+RUN go mod download
 
-CMD ["/mood/mood"]
+WORKDIR /workspace
+COPY pkg/ ./pkg/
+COPY mood/ ./mood/
+
+WORKDIR /workspace/mood
+RUN go build -o /mood ./cmd/mood
+
+FROM alpine:latest
+
+COPY --from=builder /mood /mood
+
+CMD ["/mood"]
