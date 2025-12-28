@@ -17,7 +17,6 @@ type PostgresDB struct {
 const (
 	maxRetries        = 5
 	initialBackoff    = 1 * time.Second
-	maxBackoff        = 32 * time.Second
 	backoffMultiplier = 2.0
 )
 
@@ -44,9 +43,6 @@ func Connect(host, port, user, password, dbname, sslmode string) (*PostgresDB, e
 			log.Printf("Failed to connect to PostgreSQL (attempt %d/%d): %v. Retrying in %v...", attempt, maxRetries, err, backoff)
 			time.Sleep(backoff)
 			backoff = time.Duration(float64(backoff) * backoffMultiplier)
-			if backoff > maxBackoff {
-				backoff = maxBackoff
-			}
 		}
 	}
 
