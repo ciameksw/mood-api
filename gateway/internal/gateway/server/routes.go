@@ -25,5 +25,5 @@ func (s *Server) setupAdviceRouter(r *http.ServeMux) {
 }
 
 func (s *Server) setupQuoteRouter(r *http.ServeMux) {
-	// TODO: Quote service not implemented yet
+	r.HandleFunc("GET /quote/today", s.authMiddleware(s.handleGetTodayQuote)) // Get todays quote for the logged user
 }

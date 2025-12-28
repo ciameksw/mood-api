@@ -8,6 +8,7 @@ import (
 	"github.com/ciameksw/mood-api/gateway/internal/gateway/services/advice"
 	"github.com/ciameksw/mood-api/gateway/internal/gateway/services/auth"
 	"github.com/ciameksw/mood-api/gateway/internal/gateway/services/mood"
+	"github.com/ciameksw/mood-api/gateway/internal/gateway/services/quote"
 	"github.com/ciameksw/mood-api/pkg/logger"
 	"github.com/go-playground/validator/v10"
 )
@@ -18,6 +19,7 @@ type Server struct {
 	AuthService   *auth.AuthService
 	MoodService   *mood.MoodService
 	AdviceService *advice.AdviceService
+	QuoteService  *quote.QuoteService
 	Validator     *validator.Validate
 	httpServer    *http.Server
 }
@@ -29,6 +31,7 @@ func NewServer(log *logger.Logger, cfg *config.Config) *Server {
 		AuthService:   auth.NewAuthService(cfg),
 		MoodService:   mood.NewMoodService(cfg),
 		AdviceService: advice.NewAdviceService(cfg),
+		QuoteService:  quote.NewQuoteService(cfg),
 		Validator:     validator.New(),
 	}
 }

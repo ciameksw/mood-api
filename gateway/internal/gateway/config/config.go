@@ -11,6 +11,7 @@ type Config struct {
 	AdviceURL  string
 	MoodURL    string
 	AuthURL    string
+	QuoteURL   string
 }
 
 func GetConfig() *Config {
@@ -20,6 +21,7 @@ func GetConfig() *Config {
 		AdviceURL:  getEnv("ADVICE_URL", "http://localhost:3003"),
 		MoodURL:    getEnv("MOOD_URL", "http://localhost:3002"),
 		AuthURL:    getEnv("AUTH_URL", "http://localhost:3001"),
+		QuoteURL:   getEnv("QUOTE_URL", "http://localhost:3004"),
 	}
 }
 

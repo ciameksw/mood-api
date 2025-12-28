@@ -102,6 +102,7 @@ services:
       - AUTH_URL=http://auth:3001
       - MOOD_URL=http://mood:3002
       - ADVICE_URL=http://advice:3003
+      - QUOTE_URL=http://quote:3004
     ports:
       - '3000:3000'
     depends_on:
