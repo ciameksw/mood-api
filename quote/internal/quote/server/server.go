@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/ciameksw/mood-api/pkg/logger"
+	"github.com/ciameksw/mood-api/quote/internal/quote/cache"
 	"github.com/ciameksw/mood-api/quote/internal/quote/config"
 	externalquotes "github.com/ciameksw/mood-api/quote/internal/quote/external_quotes"
 )
@@ -13,6 +14,7 @@ type Server struct {
 	Logger                *logger.Logger
 	Config                *config.Config
 	ExternalQuotesService *externalquotes.ExternalQuotesService
+	RedisCache            *cache.RedisCache
 	httpServer            *http.Server
 }
 
@@ -21,6 +23,7 @@ func NewServer(log *logger.Logger, cfg *config.Config) *Server {
 		Logger:                log,
 		Config:                cfg,
 		ExternalQuotesService: externalquotes.NewExternalQuotesService(cfg),
+		RedisCache:            cache.NewRedisCache(cfg.RedisAddr),
 	}
 }
 
