@@ -9,6 +9,7 @@ type Config struct {
 	ServerHost       string
 	ServerPort       string
 	ExternalQuoteURL string
+	RedisAddr        string
 }
 
 func GetConfig() *Config {
@@ -16,6 +17,7 @@ func GetConfig() *Config {
 		ServerHost:       getEnv("SERVER_HOST", "localhost"),
 		ServerPort:       getEnv("SERVER_PORT", "3002"),
 		ExternalQuoteURL: getEnv("EXTERNAL_QUOTE_URL", "https://zenquotes.io"),
+		RedisAddr:        getEnv("REDIS_ADDR", "localhost:6379"),
 	}
 }
 
