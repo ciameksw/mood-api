@@ -1,8 +1,13 @@
-package postgres
+package repository
 
 import (
+	"github.com/ciameksw/mood-api/pkg/postgres"
 	"github.com/lib/pq"
 )
+
+type DBOperations struct {
+	Postgres *postgres.PostgresDB
+}
 
 type MoodSummaryEntry struct {
 	MoodTypeID int     `json:"moodTypeId" validate:"required"`
@@ -15,7 +20,7 @@ type MoodAdviceMapping struct {
 	Priority     int
 }
 
-func (pg *PostgresDB) GetAdviceTypeIDByMoodSummary(moodSummary []MoodSummaryEntry) (int, error) {
+func (o *DBOperations) GetAdviceTypeIDByMoodSummary(moodSummary []MoodSummaryEntry) (int, error) {
 	moodTypeIDs := extractMoodTypeIDs(moodSummary)
 
 	query := `
@@ -24,7 +29,7 @@ func (pg *PostgresDB) GetAdviceTypeIDByMoodSummary(moodSummary []MoodSummaryEntr
 		WHERE mood_type_id = ANY($1);
 	`
 
-	rows, err := pg.DB.Query(query, pq.Array(moodTypeIDs))
+	rows, err := o.Postgres.DB.Query(query, pq.Array(moodTypeIDs))
 	if err != nil {
 		return 0, err
 	}
@@ -88,7 +93,7 @@ func findHighestScoredAdviceType(scoresMap map[int]float64) int {
 	return adviceTypeID
 }
 
-func (pg *PostgresDB) SelectRandomAdviceByAdviceTypeID(adviceTypeID int) (int, string, string, error) {
+func (o *DBOperations) SelectRandomAdviceByAdviceTypeID(adviceTypeID int) (int, string, string, error) {
 	var id int
 	var title, content string
 	query := `
@@ -99,7 +104,7 @@ func (pg *PostgresDB) SelectRandomAdviceByAdviceTypeID(adviceTypeID int) (int, s
 		LIMIT 1;
 	`
 
-	err := pg.DB.QueryRow(query, adviceTypeID).Scan(&id, &title, &content)
+	err := o.Postgres.DB.QueryRow(query, adviceTypeID).Scan(&id, &title, &content)
 	if err != nil {
 		return 0, "", "", err
 	}

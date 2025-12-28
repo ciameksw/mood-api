@@ -6,7 +6,7 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/ciameksw/mood-api/advice/internal/advice/postgres"
+	"github.com/ciameksw/mood-api/advice/internal/advice/repository"
 )
 
 type selectAdviceInputEntry struct {
@@ -33,13 +33,13 @@ func (s *Server) handleSelectAdvice(w http.ResponseWriter, r *http.Request) {
 
 	moodSummary := convertToMoodSummary(input)
 
-	adviceTypeID, err := s.Postgres.GetAdviceTypeIDByMoodSummary(moodSummary)
+	adviceTypeID, err := s.DBOperations.GetAdviceTypeIDByMoodSummary(moodSummary)
 	if err != nil {
 		s.handleError(w, "Failed to get advice type ID", err, http.StatusInternalServerError)
 		return
 	}
 
-	adviceID, title, content, err := s.Postgres.SelectRandomAdviceByAdviceTypeID(adviceTypeID)
+	adviceID, title, content, err := s.DBOperations.SelectRandomAdviceByAdviceTypeID(adviceTypeID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			s.handleError(w, "No advice found", err, http.StatusNoContent)
@@ -58,10 +58,10 @@ func (s *Server) handleSelectAdvice(w http.ResponseWriter, r *http.Request) {
 }
 
 // Helper function to convert input to MoodSummaryEntry slice
-func convertToMoodSummary(input []selectAdviceInputEntry) []postgres.MoodSummaryEntry {
-	summary := make([]postgres.MoodSummaryEntry, len(input))
+func convertToMoodSummary(input []selectAdviceInputEntry) []repository.MoodSummaryEntry {
+	summary := make([]repository.MoodSummaryEntry, len(input))
 	for i, entry := range input {
-		summary[i] = postgres.MoodSummaryEntry{
+		summary[i] = repository.MoodSummaryEntry{
 			MoodTypeID: entry.MoodTypeID,
 			Percentage: entry.Percentage,
 		}
