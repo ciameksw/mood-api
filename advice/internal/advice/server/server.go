@@ -33,6 +33,7 @@ func (s *Server) Start() error {
 
 	r.HandleFunc("POST /advice/select", s.handleSelectAdvice)
 	r.HandleFunc("POST /advice/period/save", s.handleSaveAdvice)
+	r.HandleFunc("GET /advice/period/get", s.handleGetAdviceByPeriod)
 	r.HandleFunc("GET /advice/{id}", s.handleGetByID)
 
 	r.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {

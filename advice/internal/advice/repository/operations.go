@@ -1,8 +1,6 @@
 package repository
 
 import (
-	"time"
-
 	"github.com/ciameksw/mood-api/pkg/postgres"
 	"github.com/lib/pq"
 )
@@ -130,7 +128,24 @@ func (o *DBOperations) GetAdviceByID(adviceID int) (string, string, error) {
 	return title, content, nil
 }
 
-func (o *DBOperations) SaveUserAdvicePeriod(userID int, adviceID int, periodFrom, periodTo time.Time) (int, error) {
+func (o *DBOperations) GetAdviceByPeriod(userID int, periodFrom, periodTo string) (int, string, string, error) {
+	var adviceID int
+	var title, content string
+	query := `
+		SELECT ap.advice_id, a.title, a.content
+		FROM public.user_advice_periods ap
+		JOIN public.advice a ON a.id = ap.advice_id
+		WHERE ap.user_id = $1 AND ap.period_from = $2 AND ap.period_to = $3;
+	`
+
+	err := o.Postgres.DB.QueryRow(query, userID, periodFrom, periodTo).Scan(&adviceID, &title, &content)
+	if err != nil {
+		return 0, "", "", err
+	}
+	return adviceID, title, content, nil
+}
+
+func (o *DBOperations) SaveUserAdvicePeriod(userID int, adviceID int, periodFrom, periodTo string) (int, error) {
 	var id int
 	upsert := `
 		INSERT INTO public.user_advice_periods (user_id, advice_id, period_from, period_to)
