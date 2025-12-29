@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"time"
+
 	"github.com/ciameksw/mood-api/pkg/postgres"
 	"github.com/lib/pq"
 )
@@ -110,4 +112,21 @@ func (o *DBOperations) SelectRandomAdviceByAdviceTypeID(adviceTypeID int) (int, 
 	}
 
 	return id, title, content, nil
+}
+
+func (o *DBOperations) SaveUserAdvicePeriod(userID int, adviceID int, periodFrom, periodTo time.Time) (int, error) {
+	var id int
+	upsert := `
+		INSERT INTO public.user_advice_periods (user_id, advice_id, period_from, period_to)
+		VALUES ($1, $2, $3, $4)
+		ON CONFLICT (user_id, advice_id, period_from, period_to)
+		DO UPDATE SET advice_id = EXCLUDED.advice_id
+		RETURNING id;
+	`
+
+	err := o.Postgres.DB.QueryRow(upsert, userID, adviceID, periodFrom, periodTo).Scan(&id)
+	if err != nil {
+		return 0, err
+	}
+	return id, nil
 }

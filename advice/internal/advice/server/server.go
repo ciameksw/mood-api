@@ -32,6 +32,7 @@ func (s *Server) Start() error {
 	r := http.NewServeMux()
 
 	r.HandleFunc("POST /advice/select", s.handleSelectAdvice)
+	r.HandleFunc("POST /advice/period/save", s.handleSaveAdvice)
 
 	r.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
