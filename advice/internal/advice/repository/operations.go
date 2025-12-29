@@ -114,6 +114,22 @@ func (o *DBOperations) SelectRandomAdviceByAdviceTypeID(adviceTypeID int) (int, 
 	return id, title, content, nil
 }
 
+func (o *DBOperations) GetAdviceByID(adviceID int) (string, string, error) {
+	var title, content string
+	query := `
+		SELECT title, content
+		FROM public.advice
+		WHERE id = $1;
+	`
+
+	err := o.Postgres.DB.QueryRow(query, adviceID).Scan(&title, &content)
+	if err != nil {
+		return "", "", err
+	}
+
+	return title, content, nil
+}
+
 func (o *DBOperations) SaveUserAdvicePeriod(userID int, adviceID int, periodFrom, periodTo time.Time) (int, error) {
 	var id int
 	upsert := `

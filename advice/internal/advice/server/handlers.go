@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/ciameksw/mood-api/advice/internal/advice/repository"
@@ -123,4 +124,37 @@ func (s *Server) handleSaveAdvice(w http.ResponseWriter, r *http.Request) {
 		"periodTo":   req.To,
 	}
 	httputil.WriteJSON(*s.Logger, w, response, http.StatusCreated)
+}
+
+func (s *Server) handleGetByID(w http.ResponseWriter, r *http.Request) {
+	s.Logger.Info.Println("Getting advice by ID")
+
+	idStr := r.PathValue("id")
+	if idStr == "" {
+		httputil.HandleError(*s.Logger, w, "Missing id parameter", nil, http.StatusBadRequest)
+		return
+	}
+
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		httputil.HandleError(*s.Logger, w, "Invalid id parameter", err, http.StatusBadRequest)
+		return
+	}
+
+	title, content, err := s.DBOperations.GetAdviceByID(id)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			httputil.HandleError(*s.Logger, w, "Advice not found", err, http.StatusNotFound)
+			return
+		}
+		httputil.HandleError(*s.Logger, w, "Failed to get advice by ID", err, http.StatusInternalServerError)
+		return
+	}
+
+	response := map[string]interface{}{
+		"adviceId": id,
+		"title":    title,
+		"content":  content,
+	}
+	httputil.WriteJSON(*s.Logger, w, response, http.StatusOK)
 }
