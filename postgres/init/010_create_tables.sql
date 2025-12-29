@@ -45,3 +45,13 @@ CREATE TABLE IF NOT EXISTS public.mood_advice_type_mapping (
     priority INT DEFAULT 1, -- Lower number = higher priority
     UNIQUE(mood_type_id, advice_type_id)
 );
+
+CREATE TABLE IF NOT EXISTS public.user_advice_periods (
+	id SERIAL PRIMARY KEY,
+	user_id INT NOT NULL REFERENCES public.users(id),
+	advice_id INT NOT NULL REFERENCES public.advice(id),
+	period_from DATE NOT NULL,
+	period_to DATE NOT NULL,
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	UNIQUE (user_id, advice_id, period_from, period_to)
+);
