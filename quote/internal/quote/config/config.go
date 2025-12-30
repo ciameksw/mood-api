@@ -1,9 +1,6 @@
 package config
 
-import (
-	"log"
-	"os"
-)
+import "github.com/ciameksw/mood-api/pkg/configutil"
 
 type Config struct {
 	ServerHost       string
@@ -14,18 +11,9 @@ type Config struct {
 
 func GetConfig() *Config {
 	return &Config{
-		ServerHost:       getEnv("SERVER_HOST", "localhost"),
-		ServerPort:       getEnv("SERVER_PORT", "3002"),
-		ExternalQuoteURL: getEnv("EXTERNAL_QUOTE_URL", "https://zenquotes.io"),
-		RedisAddr:        getEnv("REDIS_ADDR", "localhost:6379"),
+		ServerHost:       configutil.GetEnv("SERVER_HOST", "localhost"),
+		ServerPort:       configutil.GetEnv("SERVER_PORT", "3002"),
+		ExternalQuoteURL: configutil.GetEnv("EXTERNAL_QUOTE_URL", "https://zenquotes.io"),
+		RedisAddr:        configutil.GetEnv("REDIS_ADDR", "localhost:6379"),
 	}
-}
-
-func getEnv(key, df string) string {
-	val, ok := os.LookupEnv(key)
-	if !ok {
-		log.Printf("Using default value for %s (%s)", key, df)
-		return df
-	}
-	return val
 }

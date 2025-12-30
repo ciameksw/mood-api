@@ -1,9 +1,6 @@
 package config
 
-import (
-	"log"
-	"os"
-)
+import "github.com/ciameksw/mood-api/pkg/configutil"
 
 type Config struct {
 	ServerHost string
@@ -16,20 +13,11 @@ type Config struct {
 
 func GetConfig() *Config {
 	return &Config{
-		ServerHost: getEnv("SERVER_HOST", "localhost"),
-		ServerPort: getEnv("SERVER_PORT", "3002"),
-		AdviceURL:  getEnv("ADVICE_URL", "http://localhost:3003"),
-		MoodURL:    getEnv("MOOD_URL", "http://localhost:3002"),
-		AuthURL:    getEnv("AUTH_URL", "http://localhost:3001"),
-		QuoteURL:   getEnv("QUOTE_URL", "http://localhost:3004"),
+		ServerHost: configutil.GetEnv("SERVER_HOST", "localhost"),
+		ServerPort: configutil.GetEnv("SERVER_PORT", "3002"),
+		AdviceURL:  configutil.GetEnv("ADVICE_URL", "http://localhost:3003"),
+		MoodURL:    configutil.GetEnv("MOOD_URL", "http://localhost:3002"),
+		AuthURL:    configutil.GetEnv("AUTH_URL", "http://localhost:3001"),
+		QuoteURL:   configutil.GetEnv("QUOTE_URL", "http://localhost:3004"),
 	}
-}
-
-func getEnv(key, df string) string {
-	val, ok := os.LookupEnv(key)
-	if !ok {
-		log.Printf("Using default value for %s (%s)", key, df)
-		return df
-	}
-	return val
 }
