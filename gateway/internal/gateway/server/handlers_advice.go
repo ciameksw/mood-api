@@ -29,7 +29,20 @@ func (s *Server) handleGetAdvice(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := s.MoodService.GetSummary(from, to, userID)
+	resp, err := s.AdviceService.GetByPeriod(from, to, userID)
+	if err != nil {
+		httputil.HandleError(*s.Logger, w, "Failed to send request to advice service", err, http.StatusInternalServerError)
+		return
+	}
+	defer resp.Body.Close()
+
+	// If already there is advice for the period, forward it
+	if resp.StatusCode == http.StatusOK {
+		s.forwardResponse(w, resp)
+		return
+	}
+
+	resp, err = s.MoodService.GetSummary(from, to, userID)
 	if err != nil {
 		httputil.HandleError(*s.Logger, w, "Failed to send request to mood service", err, http.StatusInternalServerError)
 		return
@@ -53,7 +66,7 @@ func (s *Server) handleGetAdvice(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Validate entries according to tags (optional but useful)
+	// Validate entries according to tags
 	for _, e := range entries {
 		if err := s.Validator.Struct(e); err != nil {
 			httputil.HandleError(*s.Logger, w, "Invalid mood summary entry", err, http.StatusBadRequest)
@@ -68,10 +81,52 @@ func (s *Server) handleGetAdvice(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	updateResp, err := s.AdviceService.Select(bodyBytes)
+	resp, err = s.AdviceService.Select(bodyBytes)
 	if err != nil {
 		httputil.HandleError(*s.Logger, w, "Failed to send update request to advice service", err, http.StatusInternalServerError)
 		return
 	}
-	s.forwardResponse(w, updateResp)
+
+	if resp.StatusCode != http.StatusOK {
+		s.forwardResponse(w, resp)
+		return
+	}
+
+	body, err = io.ReadAll(resp.Body)
+	resp.Body.Close()
+	if err != nil {
+		httputil.HandleError(*s.Logger, w, "Failed to read advice selection response", err, http.StatusInternalServerError)
+		return
+	}
+
+	var adviceResp struct {
+		AdviceID int    `json:"adviceId"`
+		Title    string `json:"title"`
+		Content  string `json:"content"`
+	}
+	if err := json.Unmarshal(body, &adviceResp); err != nil {
+		httputil.HandleError(*s.Logger, w, "Failed to parse advice selection response", err, http.StatusInternalServerError)
+		return
+	}
+
+	saveAdvicePeriod := map[string]interface{}{
+		"userId":   userID,
+		"adviceId": adviceResp.AdviceID,
+		"from":     from,
+		"to":       to,
+	}
+	saveBody, err := json.Marshal(saveAdvicePeriod)
+	if err != nil {
+		httputil.HandleError(*s.Logger, w, "Failed to marshal save advice period request", err, http.StatusInternalServerError)
+		return
+	}
+
+	resp, err = s.AdviceService.SavePeriod(saveBody)
+	if err != nil {
+		s.Logger.Error.Println("Failed to save advice period:", err)
+	} else if resp != nil {
+		resp.Body.Close()
+	}
+
+	httputil.WriteJSON(*s.Logger, w, adviceResp, http.StatusOK)
 }
