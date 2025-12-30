@@ -7,21 +7,43 @@ import (
 	"github.com/ciameksw/mood-api/pkg/logger"
 )
 
-// Helper function to handle errors
-func HandleError(logger logger.Logger, w http.ResponseWriter, message string, err error, statusCode int) {
-	if err != nil {
-		logger.Error.Printf("%s: %v", message, err)
-	} else {
-		logger.Error.Println(message)
-	}
-	http.Error(w, message, statusCode)
+// response is the standard response structure for all API endpoints.
+type response struct {
+	Message string `json:"message,omitempty"`
+	Error   string `json:"error,omitempty"`
 }
 
-// Helper function to write JSON responses
-func WriteJSON(logger logger.Logger, w http.ResponseWriter, data interface{}, statusCode int) {
+// HandleError logs the error (if present) and sends a unified error response.
+func HandleError(logger logger.Logger, w http.ResponseWriter, errMsg string, err error, statusCode int) {
+	if err != nil {
+		logger.Error.Printf("%s: %v", errMsg, err)
+	} else {
+		logger.Error.Println(errMsg)
+	}
+	resp := response{
+		Error: errMsg,
+	}
+	writeJSON(w, resp, statusCode)
+}
+
+// WriteSuccessMessage writes a success response with a message.
+func WriteSuccessMessage(logger logger.Logger, w http.ResponseWriter, message string, statusCode int) {
+	resp := response{
+		Message: message,
+	}
+	writeJSON(w, resp, statusCode)
+}
+
+// WriteData writes a unified response with arbitrary data (unwrapped, not nested under "data" field).
+func WriteData(logger logger.Logger, w http.ResponseWriter, data interface{}, statusCode int) {
+	writeJSON(w, data, statusCode)
+}
+
+// writeJSON helper to serialize and write unified response.
+func writeJSON(w http.ResponseWriter, data interface{}, statusCode int) {
 	j, err := json.Marshal(data)
 	if err != nil {
-		HandleError(logger, w, "Failed to encode response to JSON", err, http.StatusInternalServerError)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 

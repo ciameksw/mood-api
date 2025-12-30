@@ -57,7 +57,7 @@ func (s *Server) handleSelectAdvice(w http.ResponseWriter, r *http.Request) {
 		"title":    title,
 		"content":  content,
 	}
-	httputil.WriteJSON(*s.Logger, w, response, http.StatusOK)
+	httputil.WriteData(*s.Logger, w, response, http.StatusOK)
 }
 
 // Helper function to convert input to MoodSummaryEntry slice
@@ -106,7 +106,7 @@ func (s *Server) handleSaveAdvice(w http.ResponseWriter, r *http.Request) {
 		"periodFrom": req.From,
 		"periodTo":   req.To,
 	}
-	httputil.WriteJSON(*s.Logger, w, response, http.StatusCreated)
+	httputil.WriteData(*s.Logger, w, response, http.StatusCreated)
 }
 
 func (s *Server) handleGetByID(w http.ResponseWriter, r *http.Request) {
@@ -139,7 +139,7 @@ func (s *Server) handleGetByID(w http.ResponseWriter, r *http.Request) {
 		"title":    title,
 		"content":  content,
 	}
-	httputil.WriteJSON(*s.Logger, w, response, http.StatusOK)
+	httputil.WriteData(*s.Logger, w, response, http.StatusOK)
 }
 
 func (s *Server) handleGetAdviceByPeriod(w http.ResponseWriter, r *http.Request) {
@@ -166,5 +166,5 @@ func (s *Server) handleGetAdviceByPeriod(w http.ResponseWriter, r *http.Request)
 		"title":    title,
 		"content":  content,
 	}
-	httputil.WriteJSON(*s.Logger, w, response, http.StatusOK)
+	httputil.WriteData(*s.Logger, w, response, http.StatusOK)
 }

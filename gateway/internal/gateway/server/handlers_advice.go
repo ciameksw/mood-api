@@ -129,5 +129,5 @@ func (s *Server) handleGetAdvice(w http.ResponseWriter, r *http.Request) {
 		resp.Body.Close()
 	}
 
-	httputil.WriteJSON(*s.Logger, w, adviceResp, http.StatusOK)
+	httputil.WriteData(*s.Logger, w, adviceResp, http.StatusOK)
 }

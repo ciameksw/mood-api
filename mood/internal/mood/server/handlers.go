@@ -49,7 +49,7 @@ func (s *Server) handleAddMood(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	httputil.WriteJSON(*s.Logger, w, map[string]string{"message": "Mood entry created"}, http.StatusCreated)
+	httputil.WriteSuccessMessage(*s.Logger, w, "Mood entry created", http.StatusCreated)
 }
 
 func (s *Server) handleGetMoodTypes(w http.ResponseWriter, r *http.Request) {
@@ -61,7 +61,7 @@ func (s *Server) handleGetMoodTypes(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	httputil.WriteJSON(*s.Logger, w, moodTypes, http.StatusOK)
+	httputil.WriteData(*s.Logger, w, moodTypes, http.StatusOK)
 }
 
 func (s *Server) handleGetMoods(w http.ResponseWriter, r *http.Request) {
@@ -79,7 +79,7 @@ func (s *Server) handleGetMoods(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	httputil.WriteJSON(*s.Logger, w, moods, http.StatusOK)
+	httputil.WriteData(*s.Logger, w, moods, http.StatusOK)
 }
 
 func (s *Server) handleGetMoodSummary(w http.ResponseWriter, r *http.Request) {
@@ -97,7 +97,7 @@ func (s *Server) handleGetMoodSummary(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	httputil.WriteJSON(*s.Logger, w, summary, http.StatusOK)
+	httputil.WriteData(*s.Logger, w, summary, http.StatusOK)
 }
 
 type updateMoodInput struct {
@@ -128,7 +128,7 @@ func (s *Server) handleUpdateMood(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	httputil.WriteJSON(*s.Logger, w, map[string]string{"message": "Mood entry updated"}, http.StatusOK)
+	httputil.WriteSuccessMessage(*s.Logger, w, "Mood entry updated", http.StatusOK)
 }
 
 func (s *Server) handleDeleteMood(w http.ResponseWriter, r *http.Request) {
@@ -155,7 +155,7 @@ func (s *Server) handleDeleteMood(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	httputil.WriteJSON(*s.Logger, w, map[string]string{"message": "Mood entry deleted"}, http.StatusOK)
+	httputil.WriteSuccessMessage(*s.Logger, w, "Mood entry deleted", http.StatusOK)
 }
 
 func (s *Server) handleGetMood(w http.ResponseWriter, r *http.Request) {
@@ -182,5 +182,5 @@ func (s *Server) handleGetMood(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	httputil.WriteJSON(*s.Logger, w, entry, http.StatusOK)
+	httputil.WriteData(*s.Logger, w, entry, http.StatusOK)
 }

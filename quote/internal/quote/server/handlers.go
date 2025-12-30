@@ -15,7 +15,7 @@ func (s *Server) handleGetTodayQuote(w http.ResponseWriter, r *http.Request) {
 	cachedQuote, err := s.RedisCache.GetTodayQuote(ctx)
 	if err == nil && cachedQuote != nil {
 		s.Logger.Info.Println("Quote found in cache")
-		httputil.WriteJSON(*s.Logger, w, cachedQuote, http.StatusOK)
+		httputil.WriteData(*s.Logger, w, cachedQuote, http.StatusOK)
 		return
 	}
 
@@ -29,5 +29,5 @@ func (s *Server) handleGetTodayQuote(w http.ResponseWriter, r *http.Request) {
 		s.Logger.Error.Printf("Failed to cache quote: %v", err)
 	}
 
-	httputil.WriteJSON(*s.Logger, w, resp, http.StatusOK)
+	httputil.WriteData(*s.Logger, w, resp, http.StatusOK)
 }

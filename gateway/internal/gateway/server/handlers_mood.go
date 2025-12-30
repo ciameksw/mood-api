@@ -171,9 +171,7 @@ func (s *Server) handleGetMood(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
-	w.WriteHeader(http.StatusOK)
-	w.Write(bodyBytes)
+	httputil.WriteData(*s.Logger, w, entry, http.StatusOK)
 }
 
 func (s *Server) handleDeleteMood(w http.ResponseWriter, r *http.Request) {

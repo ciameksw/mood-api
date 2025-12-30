@@ -57,7 +57,7 @@ func (s *Server) handleRegister(w http.ResponseWriter, r *http.Request) {
 	}
 
 	s.Logger.Info.Printf("User registered successfully id: %d, username: %s, email: %s", userID, input.UserName, input.Email)
-	httputil.WriteJSON(*s.Logger, w, map[string]string{"message": "User registered successfully"}, http.StatusCreated)
+	httputil.WriteSuccessMessage(*s.Logger, w, "User registered successfully", http.StatusCreated)
 }
 
 type loginInput struct {
@@ -117,7 +117,7 @@ func (s *Server) handleLogin(w http.ResponseWriter, r *http.Request) {
 	resp := loginResponse{
 		Token: token,
 	}
-	httputil.WriteJSON(*s.Logger, w, resp, http.StatusOK)
+	httputil.WriteData(*s.Logger, w, resp, http.StatusOK)
 }
 
 func (s *Server) handleAuthorize(w http.ResponseWriter, r *http.Request) {
@@ -130,7 +130,7 @@ func (s *Server) handleAuthorize(w http.ResponseWriter, r *http.Request) {
 	resp := map[string]interface{}{
 		"user_id": userID,
 	}
-	httputil.WriteJSON(*s.Logger, w, resp, http.StatusOK)
+	httputil.WriteData(*s.Logger, w, resp, http.StatusOK)
 }
 
 type userResponse struct {
@@ -166,7 +166,7 @@ func (s *Server) handleGetUser(w http.ResponseWriter, r *http.Request) {
 		Email:     user.Email,
 		CreatedAt: user.CreatedAt,
 	}
-	httputil.WriteJSON(*s.Logger, w, resp, http.StatusOK)
+	httputil.WriteData(*s.Logger, w, resp, http.StatusOK)
 }
 
 type updateUserInput struct {
@@ -245,7 +245,7 @@ func (s *Server) handleUpdateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	s.Logger.Info.Printf("User updated: %d", userID)
-	httputil.WriteJSON(*s.Logger, w, map[string]string{"message": "User updated successfully"}, http.StatusOK)
+	httputil.WriteSuccessMessage(*s.Logger, w, "User updated successfully", http.StatusOK)
 }
 
 func (s *Server) handleDeleteUser(w http.ResponseWriter, r *http.Request) {
@@ -264,7 +264,7 @@ func (s *Server) handleDeleteUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	s.Logger.Info.Printf("User deleted: %d", userID)
-	httputil.WriteJSON(*s.Logger, w, map[string]string{"message": "User deleted successfully"}, http.StatusOK)
+	httputil.WriteSuccessMessage(*s.Logger, w, "User deleted successfully", http.StatusOK)
 }
 
 // Helper function to extract userID from Authorization header
