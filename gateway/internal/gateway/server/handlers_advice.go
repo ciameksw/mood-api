@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/ciameksw/mood-api/pkg/httputil"
+	"github.com/ciameksw/mood-api/pkg/queryutil"
 )
 
 type selectAdviceInputEntry struct {
@@ -17,7 +18,7 @@ type selectAdviceInputEntry struct {
 func (s *Server) handleGetAdvice(w http.ResponseWriter, r *http.Request) {
 	s.Logger.Info.Println("Getting advice")
 
-	from, to, err := s.parseQueryParams(r)
+	from, to, err := queryutil.ParseTimeframeParams(r)
 	if err != nil {
 		httputil.HandleError(*s.Logger, w, "Invalid query parameters", err, http.StatusBadRequest)
 		return

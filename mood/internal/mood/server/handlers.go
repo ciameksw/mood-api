@@ -2,13 +2,11 @@ package server
 
 import (
 	"encoding/json"
-	"errors"
 	"net/http"
 	"strconv"
-	"time"
 
-	"github.com/ciameksw/mood-api/mood/internal/mood/repository"
 	"github.com/ciameksw/mood-api/pkg/httputil"
+	"github.com/ciameksw/mood-api/pkg/queryutil"
 )
 
 type addMoodInput struct {
@@ -69,7 +67,7 @@ func (s *Server) handleGetMoodTypes(w http.ResponseWriter, r *http.Request) {
 func (s *Server) handleGetMoods(w http.ResponseWriter, r *http.Request) {
 	s.Logger.Info.Println("Getting moods")
 
-	input, err := s.parseQueryParams(r)
+	input, err := queryutil.ParseTimeframeWithUserIDParams(r)
 	if err != nil {
 		httputil.HandleError(*s.Logger, w, "Invalid query parameters", err, http.StatusBadRequest)
 		return
@@ -87,7 +85,7 @@ func (s *Server) handleGetMoods(w http.ResponseWriter, r *http.Request) {
 func (s *Server) handleGetMoodSummary(w http.ResponseWriter, r *http.Request) {
 	s.Logger.Info.Println("Getting mood summary")
 
-	input, err := s.parseQueryParams(r)
+	input, err := queryutil.ParseTimeframeWithUserIDParams(r)
 	if err != nil {
 		httputil.HandleError(*s.Logger, w, "Invalid query parameters", err, http.StatusBadRequest)
 		return
@@ -185,34 +183,4 @@ func (s *Server) handleGetMood(w http.ResponseWriter, r *http.Request) {
 	}
 
 	httputil.WriteJSON(*s.Logger, w, entry, http.StatusOK)
-}
-
-// Helper function to parse query parameters for mood retrieval (get moods and get summary)
-func (s *Server) parseQueryParams(r *http.Request) (*repository.GetInput, error) {
-	userID, err := strconv.Atoi(r.URL.Query().Get("userId"))
-	if err != nil {
-		return nil, err
-	}
-
-	from := r.URL.Query().Get("from")
-	to := r.URL.Query().Get("to")
-
-	if from == "" || to == "" {
-		return nil, errors.New("from and to parameters are required")
-	}
-
-	// Validate date format YYYY-MM-DD
-	const dateFormat = "2006-01-02"
-	if _, err := time.Parse(dateFormat, from); err != nil {
-		return nil, errors.New("from date must be in YYYY-MM-DD format")
-	}
-	if _, err := time.Parse(dateFormat, to); err != nil {
-		return nil, errors.New("to date must be in YYYY-MM-DD format")
-	}
-
-	return &repository.GetInput{
-		UserID:    userID,
-		StartDate: from,
-		EndDate:   to,
-	}, nil
 }

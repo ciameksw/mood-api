@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/ciameksw/mood-api/pkg/httputil"
+	"github.com/ciameksw/mood-api/pkg/queryutil"
 )
 
 type addMoodInput struct {
@@ -73,7 +74,7 @@ func (s *Server) handleGetMoodTypes(w http.ResponseWriter, r *http.Request) {
 func (s *Server) handleGetMoodSummary(w http.ResponseWriter, r *http.Request) {
 	s.Logger.Info.Println("Getting mood summary")
 
-	from, to, err := s.parseQueryParams(r)
+	from, to, err := queryutil.ParseTimeframeParams(r)
 	if err != nil {
 		httputil.HandleError(*s.Logger, w, "Invalid query parameters", err, http.StatusBadRequest)
 		return
@@ -97,7 +98,7 @@ func (s *Server) handleGetMoodSummary(w http.ResponseWriter, r *http.Request) {
 func (s *Server) handleGetMoods(w http.ResponseWriter, r *http.Request) {
 	s.Logger.Info.Println("Getting moods")
 
-	from, to, err := s.parseQueryParams(r)
+	from, to, err := queryutil.ParseTimeframeParams(r)
 	if err != nil {
 		httputil.HandleError(*s.Logger, w, "Invalid query parameters", err, http.StatusBadRequest)
 		return

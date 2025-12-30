@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/ciameksw/mood-api/pkg/postgres"
+	"github.com/ciameksw/mood-api/pkg/queryutil"
 )
 
 type DBOperations struct {
@@ -82,14 +83,8 @@ type MoodEntry struct {
 	CreatedAt  time.Time
 }
 
-type GetInput struct {
-	UserID    int
-	StartDate string
-	EndDate   string
-}
-
 // GetMoodEntries retrieves mood entries for a user within a date range
-func (o *DBOperations) GetMoodEntries(input GetInput) ([]MoodEntry, error) {
+func (o *DBOperations) GetMoodEntries(input queryutil.GetParams) ([]MoodEntry, error) {
 	var moodEntries []MoodEntry
 	query := "SELECT id, user_id, mood_date, mood_type_id, note, created_at FROM mood WHERE user_id = $1 AND mood_date BETWEEN $2 AND $3"
 
@@ -121,7 +116,7 @@ type MoodSummary struct {
 }
 
 // GetMoodSummary retrieves a summary of mood entries for a user within a date range
-func (o *DBOperations) GetMoodSummary(input GetInput) ([]MoodSummary, error) {
+func (o *DBOperations) GetMoodSummary(input queryutil.GetParams) ([]MoodSummary, error) {
 	var summary []MoodSummary
 	query := `
         SELECT 

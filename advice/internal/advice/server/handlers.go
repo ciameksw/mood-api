@@ -6,10 +6,10 @@ import (
 	"errors"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/ciameksw/mood-api/advice/internal/advice/repository"
 	"github.com/ciameksw/mood-api/pkg/httputil"
+	"github.com/ciameksw/mood-api/pkg/queryutil"
 )
 
 type selectAdviceInputEntry struct {
@@ -145,7 +145,7 @@ func (s *Server) handleGetByID(w http.ResponseWriter, r *http.Request) {
 func (s *Server) handleGetAdviceByPeriod(w http.ResponseWriter, r *http.Request) {
 	s.Logger.Info.Println("Getting advice for period")
 
-	input, err := s.parseQueryParams(r)
+	input, err := queryutil.ParseTimeframeWithUserIDParams(r)
 	if err != nil {
 		httputil.HandleError(*s.Logger, w, "Invalid query parameters", err, http.StatusBadRequest)
 		return
@@ -167,39 +167,4 @@ func (s *Server) handleGetAdviceByPeriod(w http.ResponseWriter, r *http.Request)
 		"content":  content,
 	}
 	httputil.WriteJSON(*s.Logger, w, response, http.StatusOK)
-}
-
-type GetInput struct {
-	UserID    int
-	StartDate string
-	EndDate   string
-}
-
-func (s *Server) parseQueryParams(r *http.Request) (*GetInput, error) {
-	userID, err := strconv.Atoi(r.URL.Query().Get("userId"))
-	if err != nil {
-		return nil, err
-	}
-
-	from := r.URL.Query().Get("from")
-	to := r.URL.Query().Get("to")
-
-	if from == "" || to == "" {
-		return nil, errors.New("from and to parameters are required")
-	}
-
-	// Validate date format YYYY-MM-DD
-	const dateFormat = "2006-01-02"
-	if _, err := time.Parse(dateFormat, from); err != nil {
-		return nil, errors.New("from date must be in YYYY-MM-DD format")
-	}
-	if _, err := time.Parse(dateFormat, to); err != nil {
-		return nil, errors.New("to date must be in YYYY-MM-DD format")
-	}
-
-	return &GetInput{
-		UserID:    userID,
-		StartDate: from,
-		EndDate:   to,
-	}, nil
 }
