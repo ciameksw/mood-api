@@ -128,7 +128,7 @@ func (s *Server) handleAuthorize(w http.ResponseWriter, r *http.Request) {
 	}
 
 	resp := map[string]interface{}{
-		"user_id": userID,
+		"userId": userID,
 	}
 	httputil.WriteData(*s.Logger, w, resp, http.StatusOK)
 }
@@ -137,7 +137,7 @@ type userResponse struct {
 	ID        int       `json:"id"`
 	Username  string    `json:"username"`
 	Email     string    `json:"email"`
-	CreatedAt time.Time `json:"created_at"`
+	CreatedAt time.Time `json:"createdAt"`
 }
 
 func (s *Server) handleGetUser(w http.ResponseWriter, r *http.Request) {

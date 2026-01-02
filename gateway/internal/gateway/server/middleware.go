@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+
+	"github.com/ciameksw/mood-api/pkg/httputil"
 )
 
 type contextKey string
@@ -16,32 +18,32 @@ func (s *Server) authMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		// Get Authorization header
 		authHeader := r.Header.Get("Authorization")
 		if authHeader == "" {
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			httputil.HandleError(*s.Logger, w, "Unauthorized", nil, http.StatusUnauthorized)
 			return
 		}
 
 		resp, err := s.AuthService.Authorize(authHeader)
 		if err != nil {
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			httputil.HandleError(*s.Logger, w, "Unauthorized", nil, http.StatusUnauthorized)
 			return
 		}
 		defer resp.Body.Close()
 
 		if resp.StatusCode != http.StatusOK {
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			httputil.HandleError(*s.Logger, w, "Unauthorized", nil, http.StatusUnauthorized)
 			return
 		}
 
-		// Parse user_id from auth service response
+		// Parse userId from auth service response
 		var body struct {
-			UserID int `json:"user_id"`
+			UserID int `json:"userId"`
 		}
 		if err := json.NewDecoder(resp.Body).Decode(&body); err != nil {
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			httputil.HandleError(*s.Logger, w, "Unauthorized", nil, http.StatusUnauthorized)
 			return
 		}
 		if body.UserID == 0 {
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			httputil.HandleError(*s.Logger, w, "Unauthorized", nil, http.StatusUnauthorized)
 			return
 		}
 

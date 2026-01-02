@@ -48,7 +48,7 @@ func (s *ExternalQuotesService) GetTodayQuote() (*QuoteResponse, error) {
 		return nil, err
 	}
 
-	var quotes []Quote
+	quotes := make([]Quote, 0)
 	if err := json.Unmarshal(body, &quotes); err != nil {
 		return nil, err
 	}

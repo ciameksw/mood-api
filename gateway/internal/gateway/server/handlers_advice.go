@@ -61,7 +61,7 @@ func (s *Server) handleGetAdvice(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var entries []selectAdviceInputEntry
+	entries := make([]selectAdviceInputEntry, 0)
 	if err := json.Unmarshal(body, &entries); err != nil {
 		httputil.HandleError(*s.Logger, w, "Failed to parse mood summary", err, http.StatusInternalServerError)
 		return

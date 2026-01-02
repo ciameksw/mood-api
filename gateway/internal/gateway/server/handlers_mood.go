@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/ciameksw/mood-api/pkg/httputil"
 	"github.com/ciameksw/mood-api/pkg/queryutil"
@@ -159,7 +160,12 @@ func (s *Server) handleGetMood(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var entry struct {
-		UserID int `json:"UserID"`
+		ID         int       `json:"id"`
+		UserID     int       `json:"userId"`
+		MoodDate   string    `json:"moodDate"`
+		MoodTypeID int       `json:"moodTypeId"`
+		Note       string    `json:"note"`
+		CreatedAt  time.Time `json:"createdAt"`
 	}
 	if err := json.Unmarshal(bodyBytes, &entry); err != nil {
 		httputil.HandleError(*s.Logger, w, "Failed to decode mood entry", err, http.StatusInternalServerError)
@@ -207,7 +213,7 @@ func (s *Server) handleDeleteMood(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var entry struct {
-		UserID int `json:"UserID"`
+		UserID int `json:"userId"`
 	}
 	if err := json.NewDecoder(resp.Body).Decode(&entry); err != nil {
 		resp.Body.Close()
@@ -269,7 +275,7 @@ func (s *Server) handleUpdateMood(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var entry struct {
-		UserID int `json:"UserID"`
+		UserID int `json:"userId"`
 	}
 	if err := json.NewDecoder(resp.Body).Decode(&entry); err != nil {
 		resp.Body.Close()

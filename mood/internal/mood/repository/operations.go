@@ -14,14 +14,14 @@ type DBOperations struct {
 }
 
 type MoodType struct {
-	ID          int
-	Name        string
-	Description string
+	ID          int    `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
 }
 
 // GetMoodTypes retrieves all mood types from the database
 func (o *DBOperations) GetMoodTypes() ([]MoodType, error) {
-	var moodTypes []MoodType
+	moodTypes := make([]MoodType, 0)
 	query := "SELECT id, name, description FROM mood_type"
 
 	rows, err := o.Postgres.DB.Query(query)
@@ -75,17 +75,17 @@ func (o *DBOperations) GetMoodEntryByDateAndUser(userId int, moodDate string) (*
 }
 
 type MoodEntry struct {
-	ID         int
-	UserID     int
-	MoodDate   string
-	MoodTypeID int
-	Note       string
-	CreatedAt  time.Time
+	ID         int       `json:"id"`
+	UserID     int       `json:"userId"`
+	MoodDate   string    `json:"moodDate"`
+	MoodTypeID int       `json:"moodTypeId"`
+	Note       string    `json:"note"`
+	CreatedAt  time.Time `json:"createdAt"`
 }
 
 // GetMoodEntries retrieves mood entries for a user within a date range
 func (o *DBOperations) GetMoodEntries(input queryutil.GetParams) ([]MoodEntry, error) {
-	var moodEntries []MoodEntry
+	moodEntries := make([]MoodEntry, 0)
 	query := "SELECT id, user_id, mood_date, mood_type_id, note, created_at FROM mood WHERE user_id = $1 AND mood_date BETWEEN $2 AND $3"
 
 	rows, err := o.Postgres.DB.Query(query, input.UserID, input.StartDate, input.EndDate)
@@ -110,14 +110,14 @@ func (o *DBOperations) GetMoodEntries(input queryutil.GetParams) ([]MoodEntry, e
 }
 
 type MoodSummary struct {
-	MoodTypeID int
-	Count      int
-	Percentage float64
+	MoodTypeID int     `json:"moodTypeId"`
+	Count      int     `json:"count"`
+	Percentage float64 `json:"percentage"`
 }
 
 // GetMoodSummary retrieves a summary of mood entries for a user within a date range
 func (o *DBOperations) GetMoodSummary(input queryutil.GetParams) ([]MoodSummary, error) {
-	var summary []MoodSummary
+	summary := make([]MoodSummary, 0)
 	query := `
         SELECT 
             mood_type_id, 

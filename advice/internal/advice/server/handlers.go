@@ -20,7 +20,7 @@ type selectAdviceInputEntry struct {
 
 func (s *Server) handleSelectAdvice(w http.ResponseWriter, r *http.Request) {
 	s.Logger.Info.Println("Selecting advice")
-	var input []selectAdviceInputEntry
+	input := make([]selectAdviceInputEntry, 0)
 
 	err := json.NewDecoder(r.Body).Decode(&input)
 	if err != nil {
