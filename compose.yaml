@@ -33,8 +33,6 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DATABASE=mood_api_db
       - POSTGRES_SSLMODE=disable
-    ports: # expose for local test, in the future use API gateway
-      - '3001:3001'
     depends_on:
       - postgres
 
@@ -52,8 +50,6 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DATABASE=mood_api_db
       - POSTGRES_SSLMODE=disable
-    ports: # expose for local test, in the future use API gateway
-      - '3002:3002'
     depends_on:
       - postgres
 
@@ -71,8 +67,6 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DATABASE=mood_api_db
       - POSTGRES_SSLMODE=disable
-    ports: # expose for local test, in the future use API gateway
-      - '3003:3003'
     depends_on:
       - postgres
 
@@ -86,8 +80,6 @@ services:
       - SERVER_PORT=3004
       - EXTERNAL_QUOTE_URL=https://zenquotes.io
       - REDIS_ADDR=redis:6379
-    ports: # expose for local test, in the future use API gateway
-      - '3004:3004'
     depends_on:
       - redis
 
