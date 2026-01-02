@@ -31,3 +31,11 @@ Gateway service will be available at: `http://localhost:3000`
 All requests go through the gateway.
 
 See [GATEWAY_API.md](./GATEWAY_API.md) for detailed endpoint documentation.
+
+## Ownership
+
+Built and maintained by @ciameksw.
+
+## License
+
+Distributed under the MIT License. See [LICENSE](./LICENSE) for details.
