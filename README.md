@@ -28,29 +28,6 @@ Gateway service will be available at: `http://localhost:3000`
 
 ### Gateway API
 
-All requests go through the gateway. Unified response format:
-
-**Success with data:**
-```json
-{
-  "adviceId": 1,
-  "title": "Stay hydrated",
-  "content": "Drink more water throughout the day"
-}
-```
-
-**Success with message:**
-```json
-{
-  "message": "Mood entry created"
-}
-```
-
-**Error:**
-```json
-{
-  "error": "Invalid query parameters"
-}
-```
+All requests go through the gateway.
 
 See [GATEWAY_API.md](./GATEWAY_API.md) for detailed endpoint documentation.
