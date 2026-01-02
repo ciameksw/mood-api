@@ -18,13 +18,48 @@ A microservices-based mood tracking and advice API built with Go. The system pro
 
 ## Usage
 
-### Start the System
+### Requirements
 
+- Docker & Docker Compose installed ([download here](https://www.docker.com/products/docker-desktop))
+
+### Quick Start
+
+#### Option 1: With Git (Recommended)
+
+```bash
+# Clone the repository
+git clone https://github.com/ciameksw/mood-api.git
+cd mood-api
+
+# Start all services (builds images locally)
+docker compose up -d --build
+```
+
+#### Option 2: Without Git
+
+1. Download the repository as ZIP from GitHub
+2. Extract the folder
+3. Open terminal in the extracted folder
+4. Run:
 ```bash
 docker compose up -d --build
 ```
 
-Gateway service will be available at: `http://localhost:3000`
+### Stop the System
+
+```bash
+docker compose down
+```
+
+This removes all containers but keeps data in PostgreSQL.
+
+### Clean Up Everything
+
+```bash
+docker compose down -v
+```
+
+This removes containers and volumes (deletes all data).
 
 ### Gateway API
 
