@@ -17,11 +17,18 @@ func ParseTimeframeParams(r *http.Request) (string, string, error) {
 
 	// Validate date format YYYY-MM-DD
 	const dateFormat = "2006-01-02"
-	if _, err := time.Parse(dateFormat, from); err != nil {
+	fromDate, err := time.Parse(dateFormat, from)
+	if err != nil {
 		return "", "", errors.New("from date must be in YYYY-MM-DD format")
 	}
-	if _, err := time.Parse(dateFormat, to); err != nil {
+	toDate, err := time.Parse(dateFormat, to)
+	if err != nil {
 		return "", "", errors.New("to date must be in YYYY-MM-DD format")
+	}
+
+	// Validate that from is before to
+	if fromDate.After(toDate) {
+		return "", "", errors.New("from date must be before or equal to to date")
 	}
 
 	return from, to, nil
